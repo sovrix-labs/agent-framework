@@ -14,24 +14,10 @@ export class OrchestratorAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @orchestrator',
-        'when user needs multi-agent coordination',
-        'when user has complex multi-step tasks',
-        'when user wants project planning',
-        'when user wants BEADS+ workflow execution',
-        'when user mentions feature development workflow'
-      ],
-      tools: [
-        'read_file',
-        'write_file',
-        'grep_search',
-        'semantic_search',
-        'manage_todo_list',
-        'memory',
-        'runSubagent'
-      ],
-      applyTo: ['**/*']
+      argumentHint: 'Coordinate multi-agent workflows, manage complex tasks, or execute BEADS+ workflow',
+      target: ['**/*'],
+      agents: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
+      userInvocable: true
     };
 
     super(metadata, config);

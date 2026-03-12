@@ -13,24 +13,10 @@ export class RequirementGatheringAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @requirements',
-        'when user asks to gather requirements',
-        'when user wants to create specifications',
-        'when user needs to document requirements',
-        'when user wants to create a constitution',
-        'when user mentions BEADS+ or SpecKit'
-      ],
-      tools: [
-        'read_file',
-        'write_file',
-        'grep_search',
-        'semantic_search',
-        'github_repo',
-        'memory'
-      ],
-      skills: ['requirement-analysis', 'specification-writing', 'beads-workflow'],
-      applyTo: ['**/*.md', '**/docs/**', '**/requirements/**', '**/specs/**', '**/.specify/**']
+      argumentHint: 'Gather requirements, create specifications, or define project constitution using BEADS+',
+      target: ['**/*.md', '**/docs/**', '**/requirements/**', '**/specs/**', '**/.specify/**'],
+      handoffs: ['architecture', 'development'],
+      userInvocable: true
     };
 
     super(metadata, config);

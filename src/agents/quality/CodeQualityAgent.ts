@@ -12,20 +12,10 @@ export class CodeQualityAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @quality',
-        'when user asks for code review',
-        'when user wants quality analysis',
-        'when user needs security check'
-      ],
-      tools: [
-        'read_file',
-        'grep_search',
-        'semantic_search',
-        'run_in_terminal',
-        'get_errors'
-      ],
-      applyTo: ['**/*']
+      argumentHint: 'Review code quality, check best practices, or analyze maintainability',
+      target: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.java', '**/*.go', '**/*.rs'],
+      handoffs: ['development', 'security'],
+      userInvocable: true
     };
 
     super(metadata, config);

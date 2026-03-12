@@ -12,20 +12,10 @@ export class SecurityAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @security',
-        'when user asks about security',
-        'when user needs vulnerability scan',
-        'when user wants security review'
-      ],
-      tools: [
-        'read_file',
-        'grep_search',
-        'semantic_search',
-        'run_in_terminal',
-        'get_errors'
-      ],
-      applyTo: ['**/*']
+      argumentHint: 'Analyze security vulnerabilities, check OWASP compliance, or review security best practices',
+      target: ['**/*'],
+      handoffs: ['development', 'quality'],
+      userInvocable: true
     };
 
     super(metadata, config);

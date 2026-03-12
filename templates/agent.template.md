@@ -1,16 +1,6 @@
 ---
 name: custom-agent
 description: A custom agent for specific tasks
-version: 1.0.0
-invoke:
-  - when user mentions @custom-agent
-  - when user asks for specific task
-tools:
-  - read_file
-  - write_file
-  - grep_search
-applyTo:
-  - "**/*"
 ---
 
 # {{displayName}} Agent
@@ -20,7 +10,7 @@ applyTo:
 
 ## Instructions
 
-When invoked, this agent should:
+When invoked with @custom-agent, this agent should:
 1. Understand the user's request
 2. Analyze the current context
 3. Take appropriate actions

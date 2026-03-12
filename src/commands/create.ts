@@ -118,16 +118,6 @@ async function createAgent(
   const agentContent = `---
 name: ${name}
 description: ${description}
-version: 1.0.0
-invoke:
-  - when user mentions @${name}
-  - when task matches "${description}"
-tools:
-  - read_file
-  - write_file
-  - grep_search
-applyTo:
-  - "**/*"
 ---
 
 # ${displayName} Agent
@@ -137,7 +127,7 @@ ${description}
 
 ## Instructions
 
-When invoked, this agent should:
+When invoked with @${name}, this agent should:
 1. Understand the user's request
 2. Analyze the context
 3. Provide helpful assistance

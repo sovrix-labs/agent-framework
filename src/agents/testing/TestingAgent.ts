@@ -12,21 +12,10 @@ export class TestingAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @testing',
-        'when user asks to write tests',
-        'when user wants test coverage analysis',
-        'when user needs testing strategy'
-      ],
-      tools: [
-        'read_file',
-        'write_file',
-        'run_in_terminal',
-        'grep_search',
-        'semantic_search',
-        'get_errors'
-      ],
-      applyTo: ['**/*.test.*', '**/*.spec.*', '**/tests/**', '**/__tests__/**']
+      argumentHint: 'Generate tests, analyze coverage, or create testing strategies',
+      target: ['**/*.test.*', '**/*.spec.*', '**/tests/**', '**/__tests__/**'],
+      handoffs: ['development', 'quality'],
+      userInvocable: true
     };
 
     super(metadata, config);

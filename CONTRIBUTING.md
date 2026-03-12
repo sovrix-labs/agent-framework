@@ -67,8 +67,10 @@ export class MyAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: ['when user mentions @my-agent'],
-      tools: ['read_file', 'write_file']
+      // VS Code only supports: agents, argument-hint, description, 
+      // disable-model-invocation, github, handoffs, model, name, 
+      // target, tools, user-invocable
+      // Only name and description are included in frontmatter by default
     };
 
     super(metadata, config);

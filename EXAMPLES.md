@@ -352,13 +352,6 @@ Edit `.github/agents/deployment/.agent.md`:
 ---
 name: deployment
 description: Handle deployment and DevOps tasks
-invoke:
-  - when user mentions @deployment
-  - when user asks about deployment
-tools:
-  - run_in_terminal
-  - read_file
-  - write_file
 ---
 
 # Deployment Agent
@@ -368,7 +361,7 @@ Assist with deployment, CI/CD, and DevOps tasks.
 
 ## Instructions
 
-When invoked:
+When invoked with @deployment:
 1. Check deployment configuration
 2. Verify environment variables
 3. Run deployment scripts

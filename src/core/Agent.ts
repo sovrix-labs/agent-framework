@@ -9,10 +9,21 @@ export interface AgentMetadata {
 }
 
 export interface AgentConfig {
+  // Legacy fields (kept for backward compatibility but not used in frontmatter)
   invoke?: string[];
   tools?: string[];
   skills?: string[];
   applyTo?: string[];
+  
+  // VS Code supported attributes
+  agents?: string[];           // Other agents this agent can invoke
+  argumentHint?: string;        // Hint about how to invoke this agent
+  target?: string[];            // File patterns this agent targets
+  userInvocable?: boolean;      // Whether user can invoke directly (default: true)
+  model?: string;               // Specific model to use
+  github?: any;                 // GitHub integration configuration
+  handoffs?: string[];          // Agents to handoff to
+  disableModelInvocation?: boolean; // Disable model invocations
 }
 
 export abstract class Agent {
@@ -89,23 +100,37 @@ export abstract class Agent {
       description: this.metadata.description
     };
 
-    // Note: 'author' and 'version' are not supported by VS Code and are excluded
-    // Note: 'tags' is not supported by VS Code and is excluded
-
-    if (this.config.invoke && this.config.invoke.length > 0) {
-      yaml.invoke = this.config.invoke;
+    // Add VS Code supported attributes if present
+    if (this.config.argumentHint) {
+      yaml['argument-hint'] = this.config.argumentHint;
     }
 
-    if (this.config.tools && this.config.tools.length > 0) {
-      yaml.tools = this.config.tools;
+    if (this.config.target && this.config.target.length > 0) {
+      yaml.target = this.config.target;
     }
 
-    if (this.config.skills && this.config.skills.length > 0) {
-      yaml.skills = this.config.skills;
+    if (this.config.agents && this.config.agents.length > 0) {
+      yaml.agents = this.config.agents;
     }
 
-    if (this.config.applyTo && this.config.applyTo.length > 0) {
-      yaml.applyTo = this.config.applyTo;
+    if (this.config.handoffs && this.config.handoffs.length > 0) {
+      yaml.handoffs = this.config.handoffs;
+    }
+
+    if (this.config.model) {
+      yaml.model = this.config.model;
+    }
+
+    if (this.config.userInvocable !== undefined) {
+      yaml['user-invocable'] = this.config.userInvocable;
+    }
+
+    if (this.config.disableModelInvocation !== undefined) {
+      yaml['disable-model-invocation'] = this.config.disableModelInvocation;
+    }
+
+    if (this.config.github) {
+      yaml.github = this.config.github;
     }
 
     return this.yamlStringify(yaml);

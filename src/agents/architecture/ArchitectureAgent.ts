@@ -12,19 +12,10 @@ export class ArchitectureAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @architecture',
-        'when user asks about system design',
-        'when user needs architecture advice',
-        'when user wants design patterns'
-      ],
-      tools: [
-        'read_file',
-        'write_file',
-        'grep_search',
-        'semantic_search'
-      ],
-      applyTo: ['**/*.md', '**/docs/**', '**/architecture/**', '**/*.ts', '**/*.js']
+      argumentHint: 'Design system architecture, recommend patterns, or create technical decisions',
+      target: ['**/*.md', '**/docs/**', '**/architecture/**', '**/*.ts', '**/*.js'],
+      handoffs: ['development', 'security'],
+      userInvocable: true
     };
 
     super(metadata, config);

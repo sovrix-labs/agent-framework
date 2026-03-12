@@ -12,22 +12,10 @@ export class DevelopmentAgent extends Agent {
     };
 
     const config: AgentConfig = {
-      invoke: [
-        'when user mentions @development',
-        'when user asks to implement features',
-        'when user needs code generation',
-        'when user wants refactoring help'
-      ],
-      tools: [
-        'read_file',
-        'write_file',
-        'replace_string_in_file',
-        'grep_search',
-        'semantic_search',
-        'run_in_terminal',
-        'get_errors'
-      ],
-      applyTo: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.java', '**/*.go', '**/*.rs']
+      argumentHint: 'Implement features, generate code, or refactor existing code',
+      target: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.java', '**/*.go', '**/*.rs'],
+      handoffs: ['quality', 'testing'],
+      userInvocable: true
     };
 
     super(metadata, config);
