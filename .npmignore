@@ -1,0 +1,29 @@
+# Source files
+src/
+tsconfig.json
+
+# Development files
+.vscode/
+.prettierrc.json
+.eslintrc.json
+
+# Tests
+**/*.test.ts
+**/*.spec.ts
+jest.config.js
+
+# Git
+.git/
+.gitignore
+
+# Documentation (except key docs already in files array)
+CONTRIBUTING.md
+EXAMPLES.md
+QUICKSTART.md
+
+# Misc
+node_modules/
+*.log
+.DS_Store
+.env
+.env.*

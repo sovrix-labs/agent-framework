@@ -1,30 +1,57 @@
 {
   "name": "@agent-framework/cli",
   "version": "1.0.0",
-  "description": "CLI tool framework for building VS Code + Copilot agents and skills",
+  "description": "CLI tool framework for building VS Code + Copilot agents and skills with BEADS+ SpecKit workflow",
   "main": "dist/cli.js",
   "bin": {
     "agent-cli": "./dist/cli.js",
     "acli": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "BEADS_WORKFLOW.md",
+    "ITERATIVE_DEVELOPMENT.md",
+    "MEMORY_SYSTEM.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "cli",
     "agents",
     "vscode",
     "copilot",
+    "github-copilot",
     "ai",
-    "framework"
+    "framework",
+    "beads",
+    "speckit",
+    "workflow",
+    "tdd",
+    "quality-gates",
+    "agent-memory",
+    "iterative-development"
   ],
-  "author": "",
+  "author": "Pranjal Pandey <pranjal@example.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipranjal/agent-framework.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ipranjal/agent-framework/issues"
+  },
+  "homepage": "https://github.com/ipranjal/agent-framework#readme",
   "dependencies": {
     "commander": "^11.1.0",
     "chalk": "^4.1.2",
