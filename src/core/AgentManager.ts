@@ -6,7 +6,7 @@ export class AgentManager {
   private agentsDir: string;
   private installedAgents: Map<string, Agent>;
 
-  constructor(projectRoot: string, agentsDir: string = '.github/copilot/agents') {
+  constructor(projectRoot: string, agentsDir: string = '.github/agents') {
     this.agentsDir = path.join(projectRoot, agentsDir);
     this.installedAgents = new Map();
   }

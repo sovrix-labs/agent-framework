@@ -16,19 +16,16 @@ export async function initCommand(options: InitOptions): Promise<void> {
   try {
     const projectRoot = path.resolve(options.dir);
 
-    // Create .github/copilot directory (GitHub Copilot standard location)
+    // Create .github directory
     const githubDir = path.join(projectRoot, '.github');
     await fs.ensureDir(githubDir);
 
-    const copilotDir = path.join(githubDir, 'copilot');
-    await fs.ensureDir(copilotDir);
-
-    // Create agents directory in .github/copilot/agents
-    const agentsDir = path.join(copilotDir, 'agents');
+    // Create agents directory in .github/agents
+    const agentsDir = path.join(githubDir, 'agents');
     await fs.ensureDir(agentsDir);
 
-    // Create skills directory in .github/copilot/skills
-    const skillsDir = path.join(copilotDir, 'skills');
+    // Create skills directory in .github/skills
+    const skillsDir = path.join(githubDir, 'skills');
     await fs.ensureDir(skillsDir);
 
     // Create .vscode directory for VS Code settings
@@ -40,8 +37,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
     if (!(await fs.pathExists(configPath))) {
       const config = {
         version: '1.0.0',
-        agentsDir: '.github/copilot/agents',
-        skillsDir: '.github/copilot/skills',
+        agentsDir: '.github/agents',
+        skillsDir: '.github/skills',
         defaultAgents: options.agents || [],
         customSettings: {}
       };

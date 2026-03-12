@@ -24,8 +24,8 @@ acli init
 ```
 
 This will:
-- Create `.github/copilot/agents/` directory (GitHub Copilot standard)
-- Create `.github/copilot/skills/` directory
+- Create `.github/agents/` directory
+- Create `.github/skills/` directory
 - Generate `.agent-framework.json` config
 - Set up VS Code extensions recommendations (.vscode/extensions.json)
 
@@ -214,8 +214,8 @@ Customize the framework in `.agent-framework.json`:
 ```json
 {
   "version": "1.0.0",
-  "agentsDir": ".github/copilot/agents",
-  "skillsDir": ".github/copilot/skills",
+  "agentsDir": ".github/agents",
+  "skillsDir": ".github/skills",
   "defaultAgents": ["requirements", "architecture", "security", "development", "testing", "quality", "orchestrator"],
   "customSettings": {
     "github": {

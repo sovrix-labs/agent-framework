@@ -79,21 +79,18 @@ export abstract class Agent {
 
   /**
    * Generate YAML frontmatter for agent file
+   * Only includes attributes supported by VS Code:
+   * agents, argument-hint, description, disable-model-invocation, github, 
+   * handoffs, model, name, target, tools, user-invocable
    */
   protected generateFrontmatter(): string {
     const yaml: any = {
       name: this.metadata.name,
-      description: this.metadata.description,
-      version: this.metadata.version
+      description: this.metadata.description
     };
 
-    if (this.metadata.author) {
-      yaml.author = this.metadata.author;
-    }
-
-    if (this.metadata.tags && this.metadata.tags.length > 0) {
-      yaml.tags = this.metadata.tags;
-    }
+    // Note: 'author' and 'version' are not supported by VS Code and are excluded
+    // Note: 'tags' is not supported by VS Code and is excluded
 
     if (this.config.invoke && this.config.invoke.length > 0) {
       yaml.invoke = this.config.invoke;

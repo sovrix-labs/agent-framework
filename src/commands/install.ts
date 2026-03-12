@@ -37,18 +37,45 @@ export async function installAgent(name: string, options: InstallOptions, projec
     process.exit(1);
   }
 
-  const spinner = ora(`Installing ${name} agent...`).start();
-
-  try {
-    const agent = prebuiltAgents[name];
-    await agentManager.installAgent(agent, options.force);
+  // If installing orchestrator, install all agents
+  if (name === 'orchestrator') {
+    const spinner = ora('Installing orchestrator and all agents...').start();
+    const allAgents = Object.keys(prebuiltAgents);
+    const installed: string[] = [];
     
-    spinner.succeed(`Agent "${name}" installed successfully!`);
-    console.log(chalk.gray(`Location: ${path.join(config.agentsDir, name)}`));
-    console.log(chalk.cyan(`\nUse @${name} in VS Code Copilot Chat to invoke this agent.`));
-  } catch (error) {
-    spinner.fail(`Failed to install agent "${name}"`);
-    console.error(chalk.red((error as Error).message));
-    process.exit(1);
+    try {
+      for (const agentName of allAgents) {
+        const agent = prebuiltAgents[agentName];
+        await agentManager.installAgent(agent, options.force);
+        installed.push(agentName);
+      }
+      
+      spinner.succeed('All agents installed successfully!');
+      console.log(chalk.cyan('\nInstalled agents:'));
+      for (const agentName of installed) {
+        console.log(chalk.gray(`  ✓ ${agentName}`));
+      }
+      console.log(chalk.cyan('\nUse @agentName in VS Code Copilot Chat to invoke agents.'));
+      console.log(chalk.gray(`Location: ${config.agentsDir}`));
+    } catch (error) {
+      spinner.fail('Failed to install agents');
+      console.error(chalk.red((error as Error).message));
+      process.exit(1);
+    }
+  } else {
+    const spinner = ora(`Installing ${name} agent...`).start();
+
+    try {
+      const agent = prebuiltAgents[name];
+      await agentManager.installAgent(agent, options.force);
+      
+      spinner.succeed(`Agent "${name}" installed successfully!`);
+      console.log(chalk.gray(`Location: ${path.join(config.agentsDir, name)}`));
+      console.log(chalk.cyan(`\nUse @${name} in VS Code Copilot Chat to invoke this agent.`));
+    } catch (error) {
+      spinner.fail(`Failed to install agent "${name}"`);
+      console.error(chalk.red((error as Error).message));
+      process.exit(1);
+    }
   }
 }

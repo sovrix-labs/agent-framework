@@ -131,10 +131,10 @@ Complete agent framework with integrated [BEADS+ SpecKit](https://github.com/jma
   - Metrics and tracking
 
 ### Changed
-- **Directory Structure**: Updated to GitHub Copilot standard
-  - Agents now in `.github/copilot/agents/` (was `.vscode/agents/`)
-  - Skills now in `.github/copilot/skills/` (was `.copilot/skills/`)
-  - Follows industry-standard convention for GitHub integration
+- **Directory Structure**: Updated to GitHub standard
+  - Agents now in `.github/agents/` (was `.vscode/agents/`)
+  - Skills now in `.github/skills/` (was `.copilot/skills/`)
+  - Follows GitHub directory conventions
   - All documentation and examples updated
 
 - **Requirements Agent**: Now uses BEADS+ methodology

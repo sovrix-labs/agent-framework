@@ -347,7 +347,7 @@ acli create agent
 # Description: Handle deployment and DevOps tasks
 ```
 
-Edit `.github/copilot/agents/deployment/.agent.md`:
+Edit `.github/agents/deployment/.agent.md`:
 ```markdown
 ---
 name: deployment

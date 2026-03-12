@@ -45,9 +45,11 @@ acli install development
 acli install testing
 acli install quality
 
-# Or install all at once
+# Or install all 7 agents at once (recommended)
 acli install orchestrator
 ```
+
+**Note**: Installing `orchestrator` automatically installs all 7 pre-built agents (requirements, architecture, security, development, testing, quality, and orchestrator).
 
 ### 3. Use Agents in VS Code Copilot Chat
 
@@ -300,24 +302,23 @@ const relevantLearnings = await memory.getRelevantLearnings({
 ```
 your-project/
 ├── .github/
-│   └── copilot/
-│       ├── agents/
-│       │   ├── requirements/
-│       │   │   └── .agent.md
-│       │   ├── architecture/
-│       │   │   └── .agent.md
-│       │   ├── security/
-│       │   │   └── .agent.md
-│       │   ├── development/
-│       │   │   └── .agent.md
-│       │   ├── testing/
-│       │   │   └── .agent.md
-│       │   ├── quality/
-│       │   │   └── .agent.md
-│       │   └── orchestrator/
-│       │       └── .agent.md
-│       └── skills/
-│           └── (custom skills)
+│   ├── agents/
+│   │   ├── requirements/
+│   │   │   └── .agent.md
+│   │   ├── architecture/
+│   │   │   └── .agent.md
+│   │   ├── security/
+│   │   │   └── .agent.md
+│   │   ├── development/
+│   │   │   └── .agent.md
+│   │   ├── testing/
+│   │   │   └── .agent.md
+│   │   ├── quality/
+│   │   │   └── .agent.md
+│   │   └── orchestrator/
+│   │       └── .agent.md
+│   └── skills/
+│       └── (custom skills)
 ├── .specify/
 │   ├── memory/
 │   │   ├── handovers/      # Agent handover documents
@@ -356,8 +357,8 @@ Create `.agent-framework.json` in your project root:
 
 ```json
 {
-  "agentsDir": ".github/copilot/agents",
-  "skillsDir": ".github/copilot/skills",
+  "agentsDir": ".github/agents",
+  "skillsDir": ".github/skills",
   "defaultAgents": ["requirements", "architecture", "security", "development", "testing", "quality", "orchestrator"],
   "customSettings": {
     "github": {
