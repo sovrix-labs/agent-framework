@@ -12,8 +12,8 @@ export class TestingAgent extends Agent {
     };
 
     const config: AgentConfig = {
+      platform: 'vscode',
       argumentHint: 'Generate tests, analyze coverage, or create testing strategies',
-      target: ['**/*.test.*', '**/*.spec.*', '**/tests/**', '**/__tests__/**'],
       handoffs: ['development', 'quality'],
       userInvocable: true
     };

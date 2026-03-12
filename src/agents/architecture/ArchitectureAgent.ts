@@ -12,8 +12,8 @@ export class ArchitectureAgent extends Agent {
     };
 
     const config: AgentConfig = {
+      platform: 'vscode',
       argumentHint: 'Design system architecture, recommend patterns, or create technical decisions',
-      target: ['**/*.md', '**/docs/**', '**/architecture/**', '**/*.ts', '**/*.js'],
       handoffs: ['development', 'security'],
       userInvocable: true
     };

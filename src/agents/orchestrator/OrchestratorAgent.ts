@@ -14,8 +14,8 @@ export class OrchestratorAgent extends Agent {
     };
 
     const config: AgentConfig = {
+      platform: 'vscode',
       argumentHint: 'Coordinate multi-agent workflows, manage complex tasks, or execute BEADS+ workflow',
-      target: ['**/*'],
       agents: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
       userInvocable: true
     };

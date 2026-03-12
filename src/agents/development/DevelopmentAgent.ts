@@ -12,8 +12,8 @@ export class DevelopmentAgent extends Agent {
     };
 
     const config: AgentConfig = {
+      platform: 'vscode',
       argumentHint: 'Implement features, generate code, or refactor existing code',
-      target: ['**/*.ts', '**/*.js', '**/*.tsx', '**/*.jsx', '**/*.py', '**/*.java', '**/*.go', '**/*.rs'],
       handoffs: ['quality', 'testing'],
       userInvocable: true
     };

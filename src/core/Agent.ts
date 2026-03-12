@@ -11,19 +11,31 @@ export interface AgentMetadata {
 export interface AgentConfig {
   // Legacy fields (kept for backward compatibility but not used in frontmatter)
   invoke?: string[];
-  tools?: string[];
   skills?: string[];
   applyTo?: string[];
-  
-  // VS Code supported attributes
-  agents?: string[];           // Other agents this agent can invoke
-  argumentHint?: string;        // Hint about how to invoke this agent
-  target?: string[];            // File patterns this agent targets
-  userInvocable?: boolean;      // Whether user can invoke directly (default: true)
-  model?: string;               // Specific model to use
-  github?: any;                 // GitHub integration configuration
-  handoffs?: string[];          // Agents to handoff to
-  disableModelInvocation?: boolean; // Disable model invocations
+
+  // Platform target: 'vscode' (default) or 'github-copilot'
+  // Determines which attributes are valid in the frontmatter:
+  //   github-copilot: description, github, infer, mcp-servers, name, target, tools
+  //   vscode: agents, argument-hint, description, disable-model-invocation,
+  //           github, handoffs, model, name, target, tools, user-invocable
+  platform?: 'vscode' | 'github-copilot';
+
+  // Shared attributes (both platforms)
+  tools?: string[];
+  github?: any;
+
+  // VS Code only attributes
+  agents?: string[];               // Other agents this agent can invoke
+  argumentHint?: string;           // Hint about how to invoke this agent
+  userInvocable?: boolean;         // Whether user can invoke directly (default: true)
+  model?: string;                  // Specific model to use
+  handoffs?: string[];             // Agents to handoff to
+  disableModelInvocation?: boolean;
+
+  // github-copilot only attributes
+  infer?: boolean;                 // Whether copilot should infer context
+  mcpServers?: string[];           // MCP server configurations
 }
 
 export abstract class Agent {
@@ -89,48 +101,60 @@ export abstract class Agent {
   }
 
   /**
-   * Generate YAML frontmatter for agent file
-   * Only includes attributes supported by VS Code:
-   * agents, argument-hint, description, disable-model-invocation, github, 
-   * handoffs, model, name, target, tools, user-invocable
+   * Generate YAML frontmatter for agent file.
+   * The 'target' field is the platform selector:
+   *   target: vscode        — enables agents, argument-hint, handoffs, model, user-invocable, disable-model-invocation
+   *   target: github-copilot — enables infer, mcp-servers
+   * Both platforms support: description, github, name, target, tools
    */
   protected generateFrontmatter(): string {
+    const platform = this.config.platform ?? 'vscode';
+    const isGitHubCopilot = platform === 'github-copilot';
+
     const yaml: any = {
       name: this.metadata.name,
-      description: this.metadata.description
+      description: this.metadata.description,
+      target: platform
     };
 
-    // Add VS Code supported attributes if present
-    if (this.config.argumentHint) {
-      yaml['argument-hint'] = this.config.argumentHint;
+    // tools — supported by both platforms
+    if (this.config.tools && this.config.tools.length > 0) {
+      yaml.tools = this.config.tools;
     }
 
-    if (this.config.target && this.config.target.length > 0) {
-      yaml.target = this.config.target;
-    }
-
-    if (this.config.agents && this.config.agents.length > 0) {
-      yaml.agents = this.config.agents;
-    }
-
-    if (this.config.handoffs && this.config.handoffs.length > 0) {
-      yaml.handoffs = this.config.handoffs;
-    }
-
-    if (this.config.model) {
-      yaml.model = this.config.model;
-    }
-
-    if (this.config.userInvocable !== undefined) {
-      yaml['user-invocable'] = this.config.userInvocable;
-    }
-
-    if (this.config.disableModelInvocation !== undefined) {
-      yaml['disable-model-invocation'] = this.config.disableModelInvocation;
-    }
-
+    // github — supported by both platforms
     if (this.config.github) {
       yaml.github = this.config.github;
+    }
+
+    if (isGitHubCopilot) {
+      // github-copilot only attributes
+      if (this.config.infer !== undefined) {
+        yaml.infer = this.config.infer;
+      }
+      if (this.config.mcpServers && this.config.mcpServers.length > 0) {
+        yaml['mcp-servers'] = this.config.mcpServers;
+      }
+    } else {
+      // vscode only attributes
+      if (this.config.argumentHint) {
+        yaml['argument-hint'] = this.config.argumentHint;
+      }
+      if (this.config.agents && this.config.agents.length > 0) {
+        yaml.agents = this.config.agents;
+      }
+      if (this.config.handoffs && this.config.handoffs.length > 0) {
+        yaml.handoffs = this.config.handoffs;
+      }
+      if (this.config.model) {
+        yaml.model = this.config.model;
+      }
+      if (this.config.userInvocable !== undefined) {
+        yaml['user-invocable'] = this.config.userInvocable;
+      }
+      if (this.config.disableModelInvocation !== undefined) {
+        yaml['disable-model-invocation'] = this.config.disableModelInvocation;
+      }
     }
 
     return this.yamlStringify(yaml);
