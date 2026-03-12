@@ -12,6 +12,76 @@ A powerful CLI tool for building, managing, and deploying AI agents and skills f
 - 📝 **Template System**: Quick scaffolding with best-practice templates
 - ✅ **Quality Gates**: 100% test pass requirement at every level
 
+## Installation
+
+Install globally via npm:
+
+```bash
+npm install -g agent-framework-cli
+```
+
+Or with yarn:
+
+```bash
+yarn global add agent-framework-cli
+```
+
+## Quick Start
+
+### 1. Initialize Framework in Your Project
+
+```bash
+acli init
+```
+
+This creates the agent directory structure and configuration file.
+
+### 2. Install Pre-built Agents
+
+```bash
+# Install individual agents
+acli install requirements
+acli install development
+acli install testing
+acli install quality
+
+# Or install all at once
+acli install orchestrator
+```
+
+### 3. Use Agents in VS Code Copilot Chat
+
+After installing agents, access them via `@agentName` in Copilot Chat:
+
+```markdown
+@requirements gather requirements for a user authentication system
+
+@development implement the auth system based on the requirements
+
+@testing generate test cases for the auth system
+
+@quality review the implementation for security issues
+```
+
+### 4. Create Custom Agents
+
+```bash
+acli create agent --name "MyCustomAgent" --description "My specialized agent"
+```
+
+### 5. Start BEADS+ Workflow
+
+```bash
+# Initialize project with constitution
+acli beads constitution
+
+# Create feature specification
+acli beads specify
+
+# Execute full workflow
+acli beads workflow
+```
+
 ## BEADS+ SpecKit Workflow
 
 **BEADS+** = Better Engineering through Adaptive Development with Specifications
@@ -224,69 +294,6 @@ const relevantLearnings = await memory.getRelevantLearnings({
 - [learning.template.md](./templates/beads/learning.template.md) - Learning entry format
 
 📚 **Complete Guide**: [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md) - Comprehensive memory & handover documentation
-
-## Installation
-
-```bash
-npm install -g @agent-framework/cli
-# or
-yarn global add @agent-framework/cli
-```
-
-## Quick Start
-
-### Initialize in your project
-
-```bash
-acli init
-```
-
-### List available agents
-
-```bash
-acli list agents
-```
-
-### Install a pre-built agent
-
-```bash
-acli install requirements
-acli install development
-acli install testing
-acli install quality
-```
-
-### Create a custom agent
-
-```bash
-acli create agent --name "MyCustomAgent" --description "My specialized agent"
-```
-
-### Create a custom skill
-
-```bash
-acli create skill --name "MySkill" --description "My reusable skill"
-```
-
-## Usage with VS Code + Copilot
-
-After installing agents, they automatically integrate with:
-- **VS Code Agent Mode**: Access via `@agentName` in Copilot Chat
-- **Custom Instructions**: Configurable via `.instructions.md` files
-- **Skill Library**: Reusable prompts via `SKILL.md` files
-
-### Example
-
-```markdown
-# In VS Code Copilot Chat
-@requirements gather requirements for a user authentication system
-
-@development implement the auth system based on the requirements
-
-@testing generate test cases for the auth system
-
-@quality review the implementation for security issues
-```
 
 ## Project Structure
 
