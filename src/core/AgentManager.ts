@@ -23,18 +23,17 @@ export class AgentManager {
    */
   async installAgent(agent: Agent, force: boolean = false): Promise<boolean> {
     const metadata = agent.getMetadata();
-    const agentDir = path.join(this.agentsDir, metadata.name);
+    const agentFilePath = path.join(this.agentsDir, `${metadata.name}.agent.md`);
 
     // Check if agent already exists
-    if (await fs.pathExists(agentDir) && !force) {
+    if (await fs.pathExists(agentFilePath) && !force) {
       throw new Error(`Agent "${metadata.name}" already exists. Use --force to reinstall.`);
     }
 
-    // Create agent directory
-    await fs.ensureDir(agentDir);
+    // Ensure agents directory exists
+    await fs.ensureDir(this.agentsDir);
 
     // Write agent file
-    const agentFilePath = path.join(agentDir, '.agent.md');
     const agentContent = agent.generateAgentFile();
     await fs.writeFile(agentFilePath, agentContent, 'utf-8');
 
@@ -48,13 +47,13 @@ export class AgentManager {
    * Remove an agent
    */
   async removeAgent(name: string): Promise<boolean> {
-    const agentDir = path.join(this.agentsDir, name);
+    const agentFilePath = path.join(this.agentsDir, `${name}.agent.md`);
 
-    if (!(await fs.pathExists(agentDir))) {
+    if (!(await fs.pathExists(agentFilePath))) {
       throw new Error(`Agent "${name}" not found.`);
     }
 
-    await fs.remove(agentDir);
+    await fs.remove(agentFilePath);
     this.installedAgents.delete(name);
 
     return true;
@@ -72,13 +71,11 @@ export class AgentManager {
     const agents: AgentMetadata[] = [];
 
     for (const entry of entries) {
-      if (entry.isDirectory()) {
-        const agentFile = path.join(this.agentsDir, entry.name, '.agent.md');
-        if (await fs.pathExists(agentFile)) {
-          const metadata = await this.parseAgentMetadata(agentFile);
-          if (metadata) {
-            agents.push(metadata);
-          }
+      if (entry.isFile() && entry.name.endsWith('.agent.md')) {
+        const agentFile = path.join(this.agentsDir, entry.name);
+        const metadata = await this.parseAgentMetadata(agentFile);
+        if (metadata) {
+          agents.push(metadata);
         }
       }
     }
@@ -90,9 +87,8 @@ export class AgentManager {
    * Check if an agent is installed
    */
   async isInstalled(name: string): Promise<boolean> {
-    const agentDir = path.join(this.agentsDir, name);
-    const agentFile = path.join(agentDir, '.agent.md');
-    return await fs.pathExists(agentFile);
+    const agentFilePath = path.join(this.agentsDir, `${name}.agent.md`);
+    return await fs.pathExists(agentFilePath);
   }
 
   /**

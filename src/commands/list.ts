@@ -106,14 +106,14 @@ async function listSkills(projectRoot: string, configPath: string, options: List
   const skills = [];
 
   for (const entry of entries) {
-    if (entry.isDirectory()) {
-      const skillFile = path.join(skillsDir, entry.name, 'SKILL.md');
-      if (await fs.pathExists(skillFile)) {
-        const content = await fs.readFile(skillFile, 'utf-8');
-        const metadata = parseSkillMetadata(content);
-        if (metadata) {
-          skills.push({ ...metadata, name: entry.name });
-        }
+    if (entry.isFile() && entry.name.endsWith('.skill.md')) {
+      const skillFile = path.join(skillsDir, entry.name);
+      const content = await fs.readFile(skillFile, 'utf-8');
+      const metadata = parseSkillMetadata(content);
+      if (metadata) {
+        // Extract name from filename (remove .skill.md)
+        const name = entry.name.replace('.skill.md', '');
+        skills.push({ ...metadata, name });
       }
     }
   }

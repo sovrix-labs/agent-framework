@@ -105,16 +105,17 @@ async function createAgent(
   displayName: string,
   description: string
 ): Promise<void> {
-  const agentDir = path.join(projectRoot, config.agentsDir, name);
+  const agentFilePath = path.join(projectRoot, config.agentsDir, `${name}.agent.md`);
 
   // Check if agent already exists
-  if (await fs.pathExists(agentDir)) {
+  if (await fs.pathExists(agentFilePath)) {
     throw new Error(`Agent "${name}" already exists`);
   }
 
-  await fs.ensureDir(agentDir);
+  // Ensure agents directory exists
+  await fs.ensureDir(path.join(projectRoot, config.agentsDir));
 
-  // Create .agent.md file
+  // Create agent file
   const agentContent = `---
 name: ${name}
 description: ${description}
@@ -169,7 +170,7 @@ Agent: I'll analyze your request and...
 - Include domain-specific knowledge
 `;
 
-  await fs.writeFile(path.join(agentDir, '.agent.md'), agentContent, 'utf-8');
+  await fs.writeFile(agentFilePath, agentContent, 'utf-8');
 }
 
 async function createSkill(
@@ -179,16 +180,17 @@ async function createSkill(
   displayName: string,
   description: string
 ): Promise<void> {
-  const skillDir = path.join(projectRoot, config.skillsDir, name);
+  const skillFilePath = path.join(projectRoot, config.skillsDir, `${name}.skill.md`);
 
   // Check if skill already exists
-  if (await fs.pathExists(skillDir)) {
+  if (await fs.pathExists(skillFilePath)) {
     throw new Error(`Skill "${name}" already exists`);
   }
 
-  await fs.ensureDir(skillDir);
+  // Ensure skills directory exists
+  await fs.ensureDir(path.join(projectRoot, config.skillsDir));
 
-  // Create SKILL.md file
+  // Create skill file
   const skillContent = `---
 name: ${name}
 description: ${description}
@@ -264,5 +266,5 @@ If this skill requires configuration, specify it here:
 - [Important note 2]
 `;
 
-  await fs.writeFile(path.join(skillDir, 'SKILL.md'), skillContent, 'utf-8');
+  await fs.writeFile(skillFilePath, skillContent, 'utf-8');
 }
