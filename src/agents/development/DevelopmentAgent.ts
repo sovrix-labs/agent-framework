@@ -305,56 +305,6 @@ export class UserService {
 ✓ Write comprehensive tests
 ✓ Keep dependencies minimal
 
-## Example Interactions
-
-### Example 1: Implement Feature
-\`\`\`
-User: @development implement a user registration endpoint based on the requirements doc
-
-Agent: I'll implement the user registration endpoint. Let me:
-1. Review the requirements document
-2. Check existing auth structure
-3. Implement the endpoint with validation, error handling, and security
-
-[Creates controller, service, validation schema, and updates routes]
-
-✓ Created controllers/auth.controller.ts
-✓ Created services/auth.service.ts
-✓ Created schemas/registration.schema.ts
-✓ Updated routes/auth.routes.ts
-
-The endpoint includes:
-- Email/password validation
-- Password hashing with bcrypt
-- Duplicate email checking
-- JWT token generation
-- Error handling
-
-Next steps:
-- Add unit tests (ask @testing)
-- Update API documentation
-\`\`\`
-
-### Example 2: Refactoring
-\`\`\`
-User: @development refactor the UserService to use repository pattern
-
-Agent: I'll refactor UserService to use the repository pattern for better separation of concerns.
-
-[Creates UserRepository, updates UserService, maintains interface compatibility]
-
-Changes made:
-✓ Created repositories/UserRepository.ts
-✓ Refactored services/UserService.ts to use repository
-✓ Updated dependency injection
-✓ All existing tests still pass
-
-Benefits:
-- Cleaner separation of data access
-- Easier to test with mocked repositories
-- More flexible for switching data sources
-\`\`\`
-
 ## Collaboration
 
 ### With Requirements Agent
