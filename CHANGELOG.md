@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-03-14
+
+### Fixed
+- `handoffs` frontmatter attribute now serializes as objects with `label`, `agent`, `prompt`, and optional `send` fields per VS Code agent spec
+- Added `HandoffConfig` interface to `Agent.ts`
+- Updated YAML serializer to correctly render object arrays as YAML block mappings
+- Orchestrator agent now has `handoffs` declared (was missing), enabling VS Code to present handoff buttons
+- All sub-agents now include `orchestrator` as a handoff target so control can return after each phase
+- Replaced `invokeAgent()` pseudocode in orchestrator instructions with real handoff protocol
+
 ## [1.0.5] - 2025-07-15
 
 ### Added
