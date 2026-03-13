@@ -13,7 +13,7 @@ You **MUST** use the user input as the primary source for the feature descriptio
 
 ## Your Task
 
-You are creating a feature specification at `.specify/specs/spec.md`.
+You are creating a feature specification in a dedicated feature folder at `.specify/specs/{feature-id}-{feature-name}/spec.md`.
 
 This is a **technology-agnostic** description of what needs to be built. It must be detailed enough that a developer (or AI agent) can implement it without further clarification.
 
@@ -30,7 +30,20 @@ This is a **technology-agnostic** description of what needs to be built. It must
 
 3. **Ask for clarification** if the user input is ambiguous or incomplete (max 3 targeted questions). Then proceed once answered or if input is clear enough.
 
-4. **Write the specification** at `.specify/specs/spec.md`:
+4. **Generate feature ID and folder**:
+   - Check `.specify/specs/` for existing feature folders
+   - Generate next sequential ID (e.g., `001`, `002`, `003`)
+   - Create feature slug from feature name (lowercase, hyphenated)
+   - Create folder: `.specify/specs/{ID}-{slug}/`
+   - Example: `.specify/specs/001-user-authentication/`
+
+5. **Create git branch**:
+   - Branch name: `feature/{ID}-{slug}`
+   - Example: `feature/001-user-authentication`
+   - Run: `git checkout -b feature/{ID}-{slug}`
+   - If git is not available or fails, continue anyway (CI/CD compatibility)
+
+6. **Write the specification** at `.specify/specs/{ID}-{slug}/spec.md`:
 
    ```markdown
    # Feature Specification: <Feature Name>
@@ -69,12 +82,14 @@ This is a **technology-agnostic** description of what needs to be built. It must
    - <Any unresolved ambiguities — mark as TODO if deferring>
    ```
 
-5. **Verify** every acceptance criterion is:
+7. **Verify** every acceptance criterion is:
    - Specific and measurable
    - Testable (could be written as an automated test)
    - Free of implementation details
 
-6. **Output a brief summary**:
+8. **Output a brief summary**:
+   - Feature ID and folder location
+   - Git branch created
    - Number of user stories created
    - Key acceptance criteria count
-   - Suggested next step: `/beads.plan <tech stack preferences if any>`
+   - Suggested next step: `/acli.beads.plan <tech stack preferences if any>`

@@ -57,4 +57,4 @@ description: Execute the technical implementation planning workflow — produce 
 - `specs/<feature>/quickstart.md`
 
 ## Next Steps
-Run `/beads.tasks` to generate the executable task list, or `/beads.analyze` to validate consistency first.
+Run `/acli.beads.tasks` to generate the executable task list, or `/acli.beads.analyze` to validate consistency first.

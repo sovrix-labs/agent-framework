@@ -59,4 +59,4 @@ description: Create or update a technology-agnostic feature specification from a
 - New feature branch
 
 ## Next Steps
-Run `/beads.plan` to create the technical implementation plan.
+Run `/acli.beads.plan` to create the technical implementation plan.

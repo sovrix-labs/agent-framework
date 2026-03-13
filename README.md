@@ -5,12 +5,14 @@ A powerful CLI tool for building, managing, and deploying AI agents and skills f
 ## Features
 
 - 🤖 **7 Pre-built Agents**: Production-ready agents for every phase of development
-- 💬 **BEADS+ Slash Commands**: Spec-driven `/beads.*` chat commands — no CLI required
+- 💬 **BEADS+ Slash Commands**: Spec-driven `/acli.beads.*` chat commands — no CLI required
 - 🔄 **Human-in-the-Loop Iteration**: Dev → Quality → Test loop with review checkpoints
 - 🛠️ **Custom Agent Builder**: Create your own specialized agents
 - 📦 **Skill System**: Modular skill packages for reusable functionality
 - 🔌 **VS Code + Copilot Integration**: Agents installed in `.github/agents/` for instant use
-- 🧠 **Memory & Handover System**: Agents pass context and learn from mistakes
+- 🧠 **Advanced Memory System**: Intelligent learning from git history, auto-summarization, deduplication, and 13 pre-built learning templates
+- 📚 **Context Continuity**: Handover documents preserve full context across agent transitions
+- 🔍 **Smart Memory Pruning**: Automatic cleanup of ineffective and duplicate learnings
 
 ## Installation
 
@@ -45,12 +47,12 @@ Installs all 7 pre-built agents **and** the BEADS+ slash commands at once.
 Open GitHub Copilot Chat and use these commands in order:
 
 ```
-/beads.constitution   Create project principles and tech rules
-/beads.specify        Define what you want to build (user stories)
-/beads.plan           Technical architecture and file structure
-/beads.tasks          Executable, ordered task list
-/beads.analyze        Consistency check before implementing
-/beads.implement      Iterative Dev→Quality→Test with human review
+/acli.beads.constitution   Create project principles and tech rules
+/acli.beads.specify        Define what you want to build (user stories)
+/acli.beads.plan           Technical architecture and file structure
+/acli.beads.tasks          Executable, ordered task list
+/acli.beads.analyze        Consistency check before implementing
+/acli.beads.implement      Iterative Dev→Quality→Test with human review
 ```
 
 ### 4. Use agents in Copilot Chat
@@ -81,7 +83,7 @@ Use slash commands in Copilot Chat:
 Inspired by [spec-kit](https://github.com/github/spec-kit), the BEADS+ workflow uses chat slash commands for structured, specification-driven development:
 
 ```
-/beads.constitution → /beads.specify → /beads.plan → /beads.tasks → /beads.analyze → /beads.implement
+/acli.beads.constitution → /acli.beads.specify → /acli.beads.plan → /acli.beads.tasks → /acli.beads.analyze → /acli.beads.implement
        ↓                    ↓                ↓              ↓               ↓                  ↓
   Principles           User stories      Architecture    Task list      Validation       Dev→QA→Test
 ```
@@ -90,16 +92,45 @@ Inspired by [spec-kit](https://github.com/github/spec-kit), the BEADS+ workflow 
 
 | Command | Purpose |
 |---|---|
-| `/beads.constitution` | Create or update project governing principles, tech constraints, and non-negotiable rules |
-| `/beads.specify` | Define what to build — user stories, acceptance criteria (technology-agnostic) |
-| `/beads.plan` | Technical implementation plan — tech stack, architecture, file structure |
-| `/beads.tasks` | Break the plan into ordered, executable tasks with acceptance criteria per task |
-| `/beads.analyze` | Cross-artifact consistency check: spec ↔ plan ↔ tasks alignment |
-| `/beads.implement` | Execute tasks with **Dev → Quality → Test** loop and human review checkpoints |
+| `/acli.beads.constitution` | Create or update project governing principles, tech constraints, and non-negotiable rules |
+| `/acli.beads.specify` | Define what to build — user stories, acceptance criteria (technology-agnostic) |
+| `/acli.beads.plan` | Technical implementation plan — tech stack, architecture, file structure |
+| `/acli.beads.tasks` | Break the plan into ordered, executable tasks with acceptance criteria per task |
+| `/acli.beads.analyze` | Cross-artifact consistency check: spec ↔ plan ↔ tasks alignment |
+| `/acli.beads.implement` | Execute tasks with **Dev → Quality → Test** loop and human review checkpoints |
 | `/acli.create.agent` | Scaffold a new custom `.agent.md` file interactively in `.github/agents/` |
 | `/acli.create.skill` | Scaffold a new custom `.skill.md` file interactively in `.github/skills/` |
 
-### `/beads.implement` — Human-in-the-Loop
+### Feature-Specific Folder Organization
+
+Each feature gets its own isolated folder with a sequential ID:
+
+```
+.specify/specs/
+├── 001-user-auth/          # First feature
+│   ├── spec.md
+│   ├── plan.md
+│   ├── tasks.md
+│   └── testing-plan.md
+├── 002-payment-system/     # Second feature
+│   └── ...
+└── 003-notifications/      # Third feature
+    └── ...
+```
+
+**Benefits**:
+- **Isolation** — Multiple features can be developed in parallel without conflicts
+- **Git Branching** — Automatic `feature/{ID}-{slug}` branch creation on `/acli.beads.specify`
+- **Traceability** — Sequential IDs make it easy to track feature order and history
+- **Clean Navigation** — Each feature's documents are grouped together
+
+**Workflow**:
+1. Run `/acli.beads.specify` → Creates `.specify/specs/001-feature-name/` and git branch `feature/001-feature-name`
+2. All subsequent commands (`/acli.beads.plan`, `/acli.beads.tasks`, etc.) automatically use this feature folder
+3. Develop on the feature branch, merge when complete
+4. Next feature automatically gets ID 002, and so on
+
+### `/acli.beads.implement` — Human-in-the-Loop
 
 For each task, the agent runs three steps then **stops for your review**:
 
@@ -124,7 +155,7 @@ Options:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Progress is always saved to `.specify/memory/handover.md` so you can resume with `/beads.implement` any time.
+Progress is always saved to `.specify/memory/handover.md` so you can resume with `/acli.beads.implement` any time.
 
 ## Pre-built Agents
 
@@ -142,11 +173,110 @@ All agents install as `{name}.agent.md` directly in `.github/agents/` with `targ
 
 ## Agent Memory & Handover System
 
-Agents maintain continuity across sessions using a file-based memory system under `.specify/memory/`:
+Agents maintain continuity across sessions using an advanced file-based memory system under `.specify/memory/`:
 
-- **Handover documents** — structured context passed between agents (files changed, decisions, issues, action items)
-- **Learning system** — agents save quality issues and test failures and reload relevant learnings before new tasks
-- Stored as both JSON (machine-readable) and Markdown (human-readable)
+### Core Features
+- **Handover Documents** — Structured context passed between agents (files changed, decisions, issues, action items)
+- **Learning System** — Agents save quality issues and test failures; reload relevant learnings before new tasks
+- **Dual Format Storage** — Both JSON (machine-readable) and Markdown (human-readable)
+
+### Advanced Memory Features
+
+#### 1. **Automatic Learning Extraction from Git**
+Automatically capture learnings from your commit history:
+```typescript
+// Extracts learnings from fix/bug/security commits
+const learnings = await memory.extractLearningsFromGit({
+  commitRange: 'HEAD~20..HEAD',
+  autoSave: true
+});
+```
+Perfect for CI/CD integration — never lose valuable knowledge from hotfixes and bug fixes.
+
+#### 2. **Memory Summarization**
+Large handovers are automatically summarized to reduce context window usage:
+```typescript
+// Returns condensed version for old/large handovers
+const handover = await memory.getHandoverWithSummary('T001', {
+  maxTokens: 1500,  // Summarize if larger
+  maxAgeDays: 7     // Summarize if older
+});
+```
+Preserves critical information while keeping agent context lean and efficient.
+
+#### 3. **Smart Memory Pruning**
+Automatic cleanup keeps your memory system optimal:
+```typescript
+const result = await memory.pruneMemory({
+  mergeSimilar: true,       // Merge duplicate learnings
+  removeIneffective: true,  // Remove low success rate (<30%)
+  archiveOld: true          // Archive learnings >1 year
+});
+```
+Run weekly or monthly to maintain a clean, efficient knowledge base.
+
+#### 4. **Learning Templates**
+13 pre-built templates for consistent learning creation:
+```typescript
+// Security vulnerabilities
+await memory.saveLearningFromTemplate('sql-injection', {
+  QUERY_LOCATION: 'auth.ts:45'
+}, 'quality');
+
+// Performance issues
+await memory.saveLearningFromTemplate('n-plus-one-query', {
+  DATABASE_OPERATION: 'User.findAll() with posts'
+}, 'development');
+```
+
+**Available Templates**: SQL injection, XSS, N+1 queries, memory leaks, flaky tests, code smells, architecture decisions, and more.
+
+### Documentation
+- **[MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md)** — Complete memory system documentation
+- **[MEMORY_FEATURES_QUICKREF.md](./MEMORY_FEATURES_QUICKREF.md)** — Quick reference guide
+- **[examples/memory-features-usage.ts](./examples/memory-features-usage.ts)** — Working code examples
+
+### Memory System API Usage
+
+The memory system can be used programmatically in your agents or CI/CD:
+
+```typescript
+import { AgentMemory } from 'agent-framework-cli/dist/core/AgentMemory';
+import { listTemplates } from 'agent-framework-cli/dist/core/LearningTemplates';
+
+const memory = new AgentMemory(process.cwd());
+await memory.initialize();
+
+// Extract learnings from recent commits (great for CI/CD)
+const gitLearnings = await memory.extractLearningsFromGit({
+  commitRange: 'HEAD~20..HEAD',
+  autoSave: true
+});
+
+// Get relevant learnings for current task
+const learnings = await memory.getRelevantLearnings({
+  category: 'security',
+  tags: ['authentication', 'sql-injection']
+});
+
+// Create learning from template
+await memory.saveLearningFromTemplate('sql-injection', {
+  QUERY_LOCATION: 'src/auth/login.ts:45',
+  'ORM/LIBRARY': 'TypeORM'
+}, 'quality');
+
+// Weekly maintenance (recommended)
+await memory.pruneMemory({
+  mergeSimilar: true,
+  removeIneffective: true,
+  dryRun: false
+});
+```
+
+**Recommended Schedule**:
+- **Daily**: Git extraction in CI/CD after merges
+- **Weekly**: Memory pruning (merge + remove ineffective)
+- **Monthly**: Full pruning including archival
 
 ## CLI Reference
 
@@ -183,20 +313,38 @@ your-project/
 │   │   ├── speckit-checklist.skill.md
 │   │   └── speckit-implement.skill.md
 │   └── prompts/
-│       ├── beads.constitution.prompt.md
-│       ├── beads.specify.prompt.md
-│       ├── beads.plan.prompt.md
-│       ├── beads.tasks.prompt.md
-│       ├── beads.analyze.prompt.md
-│       └── beads.implement.prompt.md
+│       ├── acli.beads.constitution.prompt.md
+│       ├── acli.beads.specify.prompt.md
+│       ├── acli.beads.plan.prompt.md
+│       ├── acli.beads.tasks.prompt.md
+│       ├── acli.beads.analyze.prompt.md
+│       └── acli.beads.implement.prompt.md
 └── .specify/
     ├── memory/
     │   ├── constitution.md
-    │   └── handover.md
+    │   ├── reference-architecture.md
+    │   ├── quality-standards.md
+    │   ├── handovers/
+    │   │   ├── index.json
+    │   │   ├── {handover-id}.json
+    │   │   ├── {handover-id}.md
+    │   │   └── {handover-id}.summary.json (auto-generated)
+    │   └── learnings/
+    │       ├── index.json
+    │       ├── {learning-id}.json
+    │       ├── {learning-id}.md
+    │       └── archive/ (old learnings >1 year)
     └── specs/
-        ├── spec.md
-        ├── plan.md
-        └── tasks.md
+        ├── 001-user-authentication/
+        │   ├── spec.md
+        │   ├── plan.md
+        │   ├── tasks.md
+        │   └── testing-plan.md
+        └── 002-api-integration/
+            ├── spec.md
+            ├── plan.md
+            ├── tasks.md
+            └── testing-plan.md
 ```
 
 ## VS Code Agent Compatibility

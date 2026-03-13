@@ -98,9 +98,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
       chalk.green.bold('✓ Agent Framework Initialized!\n\n') +
       chalk.white('Next steps:\n') +
       chalk.cyan('  1. acli install orchestrator') + chalk.gray(' - Install all agents\n') +
-      chalk.cyan('  2. /beads.constitution') + chalk.gray(' - Create your project constitution (in Copilot Chat)\n') +
-      chalk.cyan('  3. /beads.specify') + chalk.gray(' - Define what you want to build\n') +
-      chalk.cyan('  4. /beads.implement') + chalk.gray(' - Start iterative development\n\n') +
+      chalk.cyan('  2. /acli.beads.constitution') + chalk.gray(' - Create your project constitution (in Copilot Chat)\n') +
+      chalk.cyan('  3. /acli.beads.specify') + chalk.gray(' - Define what you want to build\n') +
+      chalk.cyan('  4. /acli.beads.implement') + chalk.gray(' - Start iterative development\n\n') +
       chalk.white('BEADS+ commands installed in: ') + chalk.blue('.github/prompts/\n') +
       chalk.white('Speckit skills installed in:  ') + chalk.blue('.github/skills/\n') +
       chalk.white('Documentation: ') + chalk.blue('https://github.com/ipranjal/agent-framework'),

@@ -35,6 +35,14 @@ export class DevelopmentAgent extends Agent {
 ## Purpose
 Accelerate development with intelligent code generation, refactoring assistance, and implementation of features based on specifications provided by the architecture agent.
 
+## Project Context — Load Before Every Task
+
+Before every task, check and load these files if they exist:
+
+1. **\`.specify/memory/constitution.md\`** — read in full. All code must comply with the tech constraints, quality standards, and principles defined here. Flag any conflict before implementing.
+2. **\`.specify/memory/reference-architecture.md\`** — read in full. All implementation must follow the component map, patterns, and ADRs documented here. Do not introduce new patterns or architectural changes without flagging them first.
+3. **If neither exists**: recommend \`/acli.onboard\` (existing project) or \`/acli.beads.constitution\` (new project) to create them.
+
 ## Core Responsibilities
 
 ### 1. Code Implementation
@@ -387,6 +395,41 @@ Benefits:
 - Document breaking changes
 - Think about error scenarios
 - Make code reviewable (clear, focused changes)
+
+## Handover Protocol — Required Before Every Handoff
+
+Before handing off to ANY other agent:
+
+1. **Create** \`.specify/handovers/YYYY-MM-DD-development-to-{target}.md\` (use today's date).
+2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
+   - Work Completed: every file created/modified with paths, every task completed
+   - Issues Identified: bugs found, edge cases, anything incomplete
+   - Action Items: what the next agent should check first
+   - Context: implementation decisions, deviations from plan, dependencies added
+3. End your response with the following block — fill in every field, do **not** use placeholders:
+
+   \`\`\`
+   ---------------------------------------------
+   [DONE] WHAT WAS DONE
+      * Task [T###] — [description]
+      * Files created: [list with paths]
+      * Files modified: [list with paths]
+      * Dependencies added: [list or “none”]
+      * Deviations from plan: [list or “none”]
+   
+   [TEST] MANUAL TESTING STEPS (for you to verify before handing off)
+      Setup: [command to start/prepare the app]
+      1. [Navigate to / run / call — specific action]
+      2. [Input to provide]
+      3. [Action to take]
+      [DONE] Expected: [what you should see]
+      [FAIL] If broken: [failure symptom] → check [file:line or log location]
+   
+   >> HAND OFF TO: @{agent}
+   [TASK] TASK: {specific task}
+   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+   ---------------------------------------------
+   \`\`\`
 `;
   }
 

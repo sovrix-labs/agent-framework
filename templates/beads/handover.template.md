@@ -47,6 +47,27 @@
 ### Nice to Have
 {{NICE_TO_HAVE_ACTIONS}}
 
+## Manual Testing Steps
+> For the **human** to verify the changes before the next agent proceeds.
+> If this is a code change, list exact steps to manually exercise the new behaviour.
+
+### Setup
+```bash
+{{SETUP_COMMANDS}}
+```
+
+### Steps to Test
+1. {{MANUAL_TEST_STEP_1}}
+2. {{MANUAL_TEST_STEP_2}}
+3. {{MANUAL_TEST_STEP_3}}
+
+### Expected Results
+- ✅ {{EXPECTED_RESULT_1}}
+- ✅ {{EXPECTED_RESULT_2}}
+
+### Signs of Failure
+- ❌ {{FAILURE_SYMPTOM_1}} → check {{WHERE_TO_LOOK_1}}
+
 ## Context & Background
 
 ### Related Tasks

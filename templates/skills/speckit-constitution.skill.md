@@ -68,4 +68,4 @@ description: Create or update the project constitution — governing principles,
 - Sync Impact Report (prepended as HTML comment)
 
 ## Next Steps
-Run `/beads.specify` to capture feature requirements guided by the new constitution.
+Run `/acli.beads.specify` to capture feature requirements guided by the new constitution.

@@ -841,13 +841,345 @@ No manual intervention required - the system runs automatically!
 Potential improvements to the memory system:
 
 1. **Vector Embeddings**: Use semantic similarity for smarter learning retrieval
-2. **Learning Deprecation**: Automatically archive outdated learnings
+2. ~~**Learning Deprecation**: Automatically archive outdated learnings~~ ✅ **IMPLEMENTED** (see Memory Pruning below)
 3. **Cross-Project Learnings**: Share learnings across multiple projects
 4. **Learning Analytics Dashboard**: Visual insights into knowledge accumulation
 5. **Automated Learning Suggestions**: AI suggests learnings based on code patterns
-6. **Learning Export**: Export learnings as markdown documentation
+6. ~~**Learning Export**: Export learnings as markdown documentation~~ ✅ **IMPLEMENTED** (automatic markdown generation)
 7. **Team Collaboration**: Sync learnings across team members
-8. **Learning Templates**: Pre-filled templates for common issue types
+8. ~~**Learning Templates**: Pre-filled templates for common issue types~~ ✅ **IMPLEMENTED** (see Learning Templates below)
+
+---
+
+## Advanced Memory Features
+
+The following advanced features are now available in the memory system:
+
+### 1. Memory Summarization for Long Handovers
+
+**Problem**: Large handovers can exceed context windows and slow down agents.
+
+**Solution**: Automatic summarization of old or large handovers.
+
+```typescript
+// Get handover with automatic summarization
+const handover = await memory.getHandoverWithSummary('T001-user-auth', {
+  maxTokens: 1500,    // Summarize if larger than 1500 tokens
+  maxAgeDays: 7       // Summarize if older than 7 days
+});
+
+// Returns a condensed version with:
+// - Truncated summaries
+// - Only top 3 key decisions
+// - Only critical/high quality issues
+// - No low-priority action items
+```
+
+**How it works**:
+- Old or large handovers are automatically summarized
+- Summaries are cached to `.specify/memory/handovers/{id}.summary.json`
+- Original handovers remain intact for reference
+- Critical information (high-priority issues, test failures) is preserved
+
+**Benefits**:
+- Reduces token usage in agent context
+- Faster handover processing
+- Preserves essential information
+- Automatic caching prevents repeated summarization
+
+---
+
+### 2. Automatic Learning Extraction from Git
+
+**Problem**: Manual learning creation is often forgotten; valuable knowledge lost in commit history.
+
+**Solution**: Automatically extract learnings from git commit messages and diffs.
+
+```typescript
+// Extract learnings from recent commits
+const learnings = await memory.extractLearningsFromGit({
+  commitRange: 'HEAD~20..HEAD',  // Last 20 commits
+  autoSave: true                  // Automatically save as learnings
+});
+
+console.log(`Extracted ${learnings.length} learnings from git`);
+learnings.forEach(l => {
+  console.log(`[${l.severity}] ${l.problem}`);
+});
+```
+
+**What gets extracted**:
+- Commits with keywords: `fix:`, `bug:`, `security:`, `hotfix`, `patch`, `vulnerability`, `performance`, `optimiz`, `refactor:`
+- Automatically categorized by commit message content
+- Tags generated from file paths and commit message keywords
+- Language detection from changed file extensions
+
+**Example extracted learning**:
+```
+Commit: "fix: SQL injection in user search (CVE-2024-1234)"
+Files: src/auth/search.ts
+
+Extracted Learning:
+  Category: security
+  Severity: critical
+  Problem: [Git] fix: SQL injection in user search (CVE-2024-1234)
+  Resolution: See commit for details
+  Tags: ['security', 'fix', 'ts', 'auth', 'sql']
+```
+
+**Running periodically**:
+```bash
+# Add to your CI/CD or run weekly
+npm run extract-learnings
+
+# Or in a git hook
+#!/bin/bash
+# .git/hooks/post-merge
+npx ts-node -e "
+  const { AgentMemory } = require('./src/core/AgentMemory');
+  const memory = new AgentMemory(process.cwd());
+  memory.extractLearningsFromGit({ commitRange: 'HEAD~5..HEAD' });
+"
+```
+
+---
+
+### 3. Memory Pruning & Deduplication
+
+**Problem**: Memory grows unbounded with duplicate and ineffective learnings.
+
+**Solution**: Periodic cleanup to merge similar learnings and remove ineffective ones.
+
+```typescript
+// Dry run first to see what would be changed
+const dryRun = await memory.pruneMemory({
+  mergeSimilar: true,       // Merge similar learnings
+  removeIneffective: true,  // Remove learnings with <30% success rate
+  archiveOld: true,         // Archive learnings >1 year old
+  dryRun: true              // Don't actually make changes
+});
+
+console.log(`Would merge: ${dryRun.merged} learnings`);
+console.log(`Would remove: ${dryRun.removed} learnings`);
+console.log(`Would archive: ${dryRun.archived} learnings`);
+dryRun.details.forEach(d => console.log(d));
+
+// Actually run the pruning
+const result = await memory.pruneMemory({
+  mergeSimilar: true,
+  removeIneffective: true,
+  archiveOld: true,
+  dryRun: false  // Apply changes
+});
+```
+
+**Merge Similar Learnings**:
+- Detects learnings with same category and ≥50% tag overlap
+- Merges into single learning with combined apply count and success rate
+- Links all original learning IDs in `relatedLearnings`
+
+**Remove Ineffective**:
+- Removes learnings with ≥5 applications but <30% success rate
+- Indicates learning advice isn't helpful
+
+**Archive Old**:
+- Moves learnings >1 year old to `.specify/memory/learnings/archive/`
+- Keeps active learnings list manageable
+- Archived learnings remain accessible but not in search results
+
+**Recommended schedule**:
+```bash
+# Weekly cleanup
+0 0 * * 0 npm run memory:prune
+
+# Monthly deep clean
+0 0 1 * * npm run memory:prune -- --archive-old
+```
+
+---
+
+### 4. Learning Templates
+
+**Problem**: Inconsistent learning format across agents; repetitive entry.
+
+**Solution**: Pre-built templates for common learning types.
+
+#### Available Templates
+
+```typescript
+import { listTemplates, getTemplate, applyTemplate } from './core/LearningTemplates';
+
+// List all available templates
+const templates = listTemplates();
+// => ['sql-injection', 'xss-vulnerability', 'authentication-bypass', 
+//     'test-failure', 'flaky-test', 'performance-issue', 'n-plus-one-query',
+//     'memory-leak', 'code-smell', 'tight-coupling', 'missing-error-handling',
+//     'architecture-decision', 'successful-pattern']
+
+// View template details
+const template = getTemplate('sql-injection');
+console.log(template.problemTemplate);
+// => "SQL injection vulnerability in [QUERY_LOCATION]"
+```
+
+#### Using Templates
+
+```typescript
+// Create learning from template
+const learning = await memory.saveLearningFromTemplate(
+  'sql-injection',
+  {
+    QUERY_LOCATION: 'src/auth/login.ts:45',
+    'ORM/LIBRARY': 'TypeORM parameterized queries'
+  },
+  'quality'  // agent name
+);
+
+// Generated learning:
+// {
+//   category: 'security',
+//   severity: 'critical',
+//   problem: 'SQL injection vulnerability in src/auth/login.ts:45',
+//   rootCause: 'User input directly concatenated into SQL query without sanitization',
+//   resolution: 'Replaced raw SQL with parameterized query using TypeORM parameterized queries',
+//   prevention: 'Always use parameterized queries or ORM query builders; never concatenate user input into SQL',
+//   tags: ['security', 'sql-injection', 'owasp', 'database', 'src/auth/login.ts:45', ...]
+// }
+```
+
+#### Template Categories
+
+**Security Templates**:
+- `sql-injection` - SQL injection vulnerabilities
+- `xss-vulnerability` - Cross-site scripting issues
+- `authentication-bypass` - Authentication/authorization failures
+- `security-vulnerability` - General security issues
+
+**Performance Templates**:
+- `n-plus-one-query` - Database query inefficiencies
+- `memory-leak` - Memory management issues
+- `performance-issue` - General performance problems
+
+**Testing Templates**:
+- `test-failure` - General test failures
+- `flaky-test` - Intermittent test failures
+
+**Quality Templates**:
+- `code-smell` - Code quality issues
+- `tight-coupling` - Architectural coupling problems
+- `missing-error-handling` - Error handling gaps
+
+**Architecture Templates**:
+- `architecture-decision` - ADR documentation
+- `successful-pattern` - Successful implementations
+
+#### Creating Custom Templates
+
+Edit `src/core/LearningTemplates.ts` to add your own:
+
+```typescript
+export const LEARNING_TEMPLATES: Record<string, LearningTemplate> = {
+  // ... existing templates
+  
+  'my-custom-template': {
+    category: 'quality',
+    severity: 'medium',
+    problemTemplate: '[ISSUE_TYPE] in [COMPONENT]',
+    rootCauseTemplate: '[CAUSE]',
+    resolutionTemplate: '[FIX]',
+    preventionTemplate: '[PREVENTION]',
+    requiredTags: ['custom', 'quality'],
+    optionalTags: ['team-specific']
+  }
+};
+```
+
+---
+
+## Usage Examples
+
+See `examples/memory-features-usage.ts` for complete working examples of all features.
+
+**Quick examples**:
+
+```typescript
+import { AgentMemory } from './src/core/AgentMemory';
+
+const memory = new AgentMemory(process.cwd());
+
+// 1. Summarized handover
+const handover = await memory.getHandoverWithSummary('T001', { maxTokens: 1000 });
+
+// 2. Extract from git
+const gitLearnings = await memory.extractLearningsFromGit({ 
+  commitRange: 'HEAD~10..HEAD' 
+});
+
+// 3. Prune memory
+const pruned = await memory.pruneMemory({ 
+  mergeSimilar: true, 
+  dryRun: false 
+});
+
+// 4. Use template
+const learning = await memory.saveLearningFromTemplate(
+  'sql-injection',
+  { QUERY_LOCATION: 'auth.ts:45' },
+  'quality'
+);
+```
+
+---
+
+## Best Practices (Updated)
+
+### For Memory Management
+
+1. **Run git extraction weekly**: `extractLearningsFromGit()` to capture fixes
+2. **Prune monthly**: Run `pruneMemory()` with dry-run first
+3. **Use templates consistently**: Prefer templates over manual learning creation
+4. **Archive proactively**: Don't let learnings accumulate beyond 1 year
+5. **Monitor success rates**: Remove ineffective learnings regularly
+
+### For Template Usage
+
+1. **Choose the right template**: Match issue type to template
+2. **Fill all placeholders**: Use meaningful values, not generic text
+3. **Add custom tags**: Include project-specific tags beyond template defaults
+4. **Review generated learning**: Edit if template doesn't fit perfectly
+5. **Create custom templates**: For recurring project-specific patterns
+
+### For Handover Summarization
+
+1. **Set appropriate thresholds**: Balance detail vs. context size
+2. **Check summaries periodically**: Ensure critical info preserved
+3. **Adjust maxTokens per agent**: Some agents need more context
+4. **Cache management**: Summaries auto-cached, no manual action needed
+
+---
+
+## Performance Considerations
+
+**Memory System Performance**:
+- Handover retrieval: O(log n) via index lookup
+- Learning search: O(n) with filtering, O(1) with category/tag index
+- Git extraction: 10-50 commits/second depending on diff size
+- Memory pruning: O(n²) for similarity detection (cached after first run)
+
+**Optimization Tips**:
+1. Keep `index.json` files small (they're loaded frequently)
+2. Archive old learnings to reduce active set size
+3. Use specific tags for faster filtering
+4. Run git extraction in background/CI rather than synchronously
+5. Cache template instantiations if applying same template repeatedly
+
+**Storage Estimates**:
+- Average learning: 2-5 KB (JSON) + 3-8 KB (Markdown)
+- Average handover: 5-15 KB (JSON) + 10-25 KB (Markdown)
+- 100 learnings + 500 handovers: ~5-10 MB total
+- Archive doubles storage but keeps active set small
+
+---
 
 ## Resources
 

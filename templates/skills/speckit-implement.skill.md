@@ -59,7 +59,7 @@ description: Execute the implementation plan by processing tasks.md phase-by-pha
 - Always mark completed tasks as `[X]` in `tasks.md` immediately.
 - Never skip checklist validation — it gates implementation quality.
 - Respect `[P]` markers: parallel tasks must not share file writes.
-- If `tasks.md` is incomplete, suggest running `/beads.tasks` first.
+- If `tasks.md` is incomplete, suggest running `/acli.beads.tasks` first.
 
 ## Outputs
 - Implementation changes across the codebase

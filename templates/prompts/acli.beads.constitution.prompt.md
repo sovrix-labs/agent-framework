@@ -90,4 +90,4 @@ This file is the **single source of truth** for how this project is built. Every
 5. **Output a brief summary** to the user:
    - What was created or changed
    - Key principles ratified
-   - Suggested next step: `/beads.specify <describe what you want to build>`
+   - Suggested next step: `/acli.beads.specify <describe what you want to build>`

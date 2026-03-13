@@ -19,23 +19,29 @@ This is an active, iterative process. Do NOT implement everything at once. Compl
 
 ## Pre-Flight Checks
 
-1. **Load required files**:
-   - **REQUIRED**: `.specify/specs/tasks.md` — the task list
-   - **REQUIRED**: `.specify/specs/plan.md` — architecture and file structure
-   - **REQUIRED**: `.specify/specs/spec.md` — acceptance criteria
+1. **Identify the feature folder**:
+   - Look for the most recent feature folder in `.specify/specs/` matching pattern `###-feature-name/` (e.g., `001-user-auth/`, `002-api-integration/`)
+   - If user specified a feature, use that folder
+   - All documents will be loaded from this folder
+
+2. **Load required files**:
+   - **REQUIRED**: `.specify/specs/{feature-id}-{feature-name}/tasks.md` — the task list
+   - **REQUIRED**: `.specify/specs/{feature-id}-{feature-name}/plan.md` — architecture and file structure
+   - **REQUIRED**: `.specify/specs/{feature-id}-{feature-name}/spec.md` — acceptance criteria
    - **REQUIRED**: `.specify/memory/constitution.md` — principles and standards
    - **IF EXISTS**: `.specify/memory/handover.md` — context from previous session
 
-2. **Determine starting point**:
+3. **Determine starting point**:
    - Find the first uncompleted task (`- [ ]`) in tasks.md
    - If user input specifies a task ID, start there
    - Show the user which task you're about to start
 
-3. **Confirm with the user before starting**:
+4. **Confirm with the user before starting**:
    ```
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    🚀 Ready to start BEADS+ implementation
    
+   Feature: {feature-id} — {feature-name}
    Next task: TASK-XXX — <description>
    Total remaining: <N> tasks
    
@@ -189,4 +195,4 @@ TASK-XXX — <description>
 ## Context / notes
 <anything the next session needs to know>
 ```
-Then confirm: "Progress saved. Resume any time with `/beads.implement`."
+Then confirm: "Progress saved. Resume any time with `/acli.beads.implement`."

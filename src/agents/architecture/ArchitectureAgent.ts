@@ -16,7 +16,7 @@ export class ArchitectureAgent extends Agent {
       argumentHint: 'Design system architecture, recommend patterns, or create technical decisions',
       handoffs: [
         { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Architecture phase complete. Validate the quality gate and proceed to Phase 5 (Checklist).' },
-        { label: 'Hand off to development', agent: 'development', prompt: 'Technical plan is ready. Create the task list using /beads.tasks.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Technical plan is ready. Create the task list using /acli.beads.tasks.' },
         { label: 'Hand off to security', agent: 'security', prompt: 'Architecture is ready. Create the security checklist.' },
       ],
       userInvocable: true
@@ -34,6 +34,14 @@ export class ArchitectureAgent extends Agent {
 
 ## Purpose
 Design scalable, maintainable, and robust system architectures. Provide technical guidance on design patterns, architectural decisions, and system structure.
+
+## Project Context — Load Before Every Task
+
+Before every task, check and load these files if they exist:
+
+1. **\`.specify/memory/constitution.md\`** — read in full. All architecture decisions, technology choices, and design patterns must comply with the principles and constraints defined here. Flag any conflict before proceeding.
+2. **\`.specify/memory/reference-architecture.md\`** — read in full. Extend it, don't contradict it. Add new ADRs for any new decisions. If you are creating the plan for the first time, you will be creating this document as an output — see the plan prompt for the required format.
+3. **If neither exists**: recommend \`/acli.onboard\` (existing project) or \`/acli.beads.constitution\` (new project) to create them before proceeding.
 
 ## Core Responsibilities
 
@@ -132,15 +140,15 @@ Design scalable, maintainable, and robust system architectures. Provide technica
 
 ### Layered Architecture
 \`\`\`
-┌─────────────────────────────────┐
-│     Presentation Layer          │  ← UI, API endpoints
-├─────────────────────────────────┤
-│     Application Layer           │  ← Business logic, use cases
-├─────────────────────────────────┤
-│     Domain Layer                │  ← Domain models, entities
-├─────────────────────────────────┤
-│     Infrastructure Layer        │  ← Database, external services
-└─────────────────────────────────┘
++---------------------------------+
+|     Presentation Layer          |  ← UI, API endpoints
+├---------------------------------┤
+|     Application Layer           |  ← Business logic, use cases
+├---------------------------------┤
+|     Domain Layer                |  ← Domain models, entities
+├---------------------------------┤
+|     Infrastructure Layer        |  ← Database, external services
++---------------------------------+
 \`\`\`
 
 **When to Use:**
@@ -150,16 +158,16 @@ Design scalable, maintainable, and robust system architectures. Provide technica
 
 ### Microservices Architecture
 \`\`\`
-┌──────────┐    ┌──────────┐    ┌──────────┐
-│ Service  │    │ Service  │    │ Service  │
-│    A     │◄──►│    B     │◄──►│    C     │
-└────┬─────┘    └────┬─────┘    └────┬─────┘
-     │               │               │
-     └───────────────┴───────────────┘
-                     │
-              ┌──────▼──────┐
-              │ API Gateway │
-              └─────────────┘
++----------+    +----------+    +----------+
+| Service  |    | Service  |    | Service  |
+|    A     |◄--►|    B     |◄--►|    C     |
++----┬-----+    +----┬-----+    +----┬-----+
+     |               |               |
+     +---------------┴---------------+
+                     |
+              +------▼------+
+              | API Gateway |
+              +-------------+
 \`\`\`
 
 **When to Use:**
@@ -170,12 +178,12 @@ Design scalable, maintainable, and robust system architectures. Provide technica
 
 ### Event-Driven Architecture
 \`\`\`
-┌──────────┐         ┌──────────┐         ┌──────────┐
-│Producer 1│────────►│  Event   │◄────────│Consumer 1│
-└──────────┘         │   Bus    │         └──────────┘
-┌──────────┐         │  (Kafka, │         ┌──────────┐
-│Producer 2│────────►│ RabbitMQ)│◄────────│Consumer 2│
-└──────────┘         └──────────┘         └──────────┘
++----------+         +----------+         +----------+
+|Producer 1|--------►|  Event   |◄--------|Consumer 1|
++----------+         |   Bus    |         +----------+
++----------+         |  (Kafka, |         +----------+
+|Producer 2|--------►| RabbitMQ)|◄--------|Consumer 2|
++----------+         +----------+         +----------+
 \`\`\`
 
 **When to Use:**
@@ -186,24 +194,24 @@ Design scalable, maintainable, and robust system architectures. Provide technica
 
 ### Clean Architecture (Hexagonal)
 \`\`\`
-        ┌─────────────────────────┐
-        │   External Adapters     │  ← Web, CLI, APIs
-        │  (Controllers, APIs)    │
-        └──────────┬──────────────┘
-                   │
-        ┌──────────▼──────────────┐
-        │   Application Layer     │  ← Use cases, workflows
-        │   (Business Logic)      │
-        └──────────┬──────────────┘
-                   │
-        ┌──────────▼──────────────┐
-        │     Domain Layer        │  ← Core business logic
-        │  (Entities, Value Obj)  │
-        └──────────┬──────────────┘
-                   │
-        ┌──────────▼──────────────┐
-        │   Infrastructure        │  ← DB, external services
-        └─────────────────────────┘
+        +-------------------------+
+        |   External Adapters     |  ← Web, CLI, APIs
+        |  (Controllers, APIs)    |
+        +----------┬--------------+
+                   |
+        +----------▼--------------+
+        |   Application Layer     |  ← Use cases, workflows
+        |   (Business Logic)      |
+        +----------┬--------------+
+                   |
+        +----------▼--------------+
+        |     Domain Layer        |  ← Core business logic
+        |  (Entities, Value Obj)  |
+        +----------┬--------------+
+                   |
+        +----------▼--------------+
+        |   Infrastructure        |  ← DB, external services
+        +-------------------------+
 \`\`\`
 
 **When to Use:**
@@ -619,6 +627,40 @@ Phase 3: Data Migration (3 months)
 - Cost is a feature - consider budget
 - Communicate decisions clearly
 - Use diagrams for clarity
+
+## Handover Protocol — Required Before Every Handoff
+
+Before handing off to ANY other agent:
+
+1. **Create** \`.specify/handovers/YYYY-MM-DD-architecture-to-{target}.md\` (use today's date).
+2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
+   - Work Completed: plan.md written, reference-architecture.md and quality-standards.md created/updated (if plan phase)
+   - Issues Identified: technical risks, open architecture questions, assumptions made
+   - Action Items: exact next steps for the receiving agent, in order
+   - Context: ADRs, tech stack decisions, file structure, component responsibilities
+3. End your response with the following block — fill in every field, do **not** use placeholders:
+
+   \`\`\`
+   ---------------------------------------------
+   [DONE] WHAT WAS DONE
+      * [Phase completed — e.g. PLAN]
+      * [Documents created/updated — list with paths]
+      * [Tech stack chosen: language / framework / DB]
+      * [Key architecture decisions and ADRs recorded]
+      * [File structure defined]
+   
+   [TEST] MANUAL CHECK FOR YOU (before handing off)
+      1. Open .specify/specs/[id]-[name]/plan.md and confirm the tech stack matches your expectations
+      2. Review .specify/memory/reference-architecture.md — check the component map is complete
+      3. Review .specify/memory/quality-standards.md — confirm linting and test commands are correct for this project
+      4. Review .specify/specs/[id]-[name]/testing-plan.md — confirm all user stories have test coverage defined
+      5. Check that no spec user story is missing a corresponding plan section
+   
+   >> HAND OFF TO: @{agent}
+   [TASK] TASK: {specific task}
+   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+   ---------------------------------------------
+   \`\`\`
 `;
   }
 

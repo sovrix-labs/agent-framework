@@ -58,4 +58,4 @@ description: Generate an actionable, dependency-ordered tasks.md for a feature b
 - `specs/<feature>/tasks.md`
 
 ## Next Steps
-Run `/beads.analyze` to validate cross-artifact consistency, or `/beads.implement` to start coding.
+Run `/acli.beads.analyze` to validate cross-artifact consistency, or `/acli.beads.implement` to start coding.

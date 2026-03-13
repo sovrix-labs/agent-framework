@@ -15,14 +15,19 @@ You are validating consistency and completeness across all BEADS+ artifacts befo
 
 ## Execution Steps
 
-1. **Load all artifacts**:
+1. **Identify the feature folder**:
+   - Look for the most recent feature folder in `.specify/specs/` matching pattern `###-feature-name/` (e.g., `001-user-auth/`, `002-api-integration/`)
+   - If user specified a feature, use that folder
+   - All documents will be loaded from this folder
+
+2. **Load all artifacts**:
    - `.specify/memory/constitution.md`
-   - `.specify/specs/spec.md`
-   - `.specify/specs/plan.md`
-   - `.specify/specs/tasks.md`
+   - `.specify/specs/{feature-id}-{feature-name}/spec.md`
+   - `.specify/specs/{feature-id}-{feature-name}/plan.md`
+   - `.specify/specs/{feature-id}-{feature-name}/tasks.md`
    - Note which files are missing
 
-2. **Run consistency checks**:
+3. **Run consistency checks**:
 
    **Spec vs Constitution**:
    - [ ] All requirements align with core principles
@@ -45,11 +50,12 @@ You are validating consistency and completeness across all BEADS+ artifacts befo
    - [ ] Security tasks are present if OWASP compliance is required
    - [ ] No tasks have vague or unmeasurable criteria
 
-3. **Produce an analysis report**:
+4. **Produce an analysis report**:
 
    ```
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BEADS+ Consistency Analysis Report
+   Feature: {feature-id} — {feature-name}
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    
    ✅ PASS  / ⚠️  WARNING  / ❌ FAIL
@@ -63,15 +69,15 @@ You are validating consistency and completeness across all BEADS+ artifacts befo
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ```
 
-4. **For each issue found**, describe:
+5. **For each issue found**, describe:
    - What is inconsistent or missing
    - Which file needs updating
    - Suggested fix
 
-5. **If issues exist**, ask the user:
+6. **If issues exist**, ask the user:
    - "Auto-fix minor issues?" (gaps in task coverage, missing acceptance criteria)
    - For major issues (spec-plan misalignment), describe and stop for human decision
 
-6. **If all checks pass**:
+7. **If all checks pass**:
    - Confirm ready to implement
-   - Suggest: `/beads.implement`
+   - Suggest: `/acli.beads.implement`

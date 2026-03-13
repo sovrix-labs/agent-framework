@@ -61,4 +61,4 @@ Checklists validate the **quality of written requirements**, not implementation 
 - `specs/<feature>/checklists/<domain>.md`
 
 ## Next Steps
-Incomplete checklist items require spec/plan updates before running `/beads.implement`.
+Incomplete checklist items require spec/plan updates before running `/acli.beads.implement`.

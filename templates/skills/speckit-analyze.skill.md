@@ -7,7 +7,7 @@ description: Perform a non-destructive cross-artifact consistency and quality an
 
 ## When to Use
 - `spec.md`, `plan.md`, and `tasks.md` all exist and need a consistency check before implementation.
-- Must run after a complete `tasks.md` exists (after `/beads.tasks`).
+- Must run after a complete `tasks.md` exists (after `/acli.beads.tasks`).
 
 ## Inputs
 - `specs/<feature>/spec.md`, `plan.md`, `tasks.md` (all required)
@@ -64,4 +64,4 @@ description: Perform a non-destructive cross-artifact consistency and quality an
 - Read-only analysis report in the chat response (no file writes)
 
 ## Next Steps
-Resolve CRITICAL issues in the relevant artifacts, then run `/beads.implement`.
+Resolve CRITICAL issues in the relevant artifacts, then run `/acli.beads.implement`.

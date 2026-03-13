@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.9] - 2026-03-14
+
+### Added
+- **Feature-Specific Folder Organization** — BEADS+ workflow now organizes all documents in feature-specific folders using pattern `.specify/specs/{ID}-{slug}/` (e.g., `001-user-auth/`, `002-api-integration/`) for better isolation and parallel feature development
+- **Automatic Git Branch Creation** — `/acli.beads.specify` command now automatically creates a git branch with pattern `feature/{ID}-{slug}` for each new feature specification; graceful fallback if git is unavailable
+- **Sequential Feature ID Generation** — Features are assigned sequential IDs starting from 001, automatically incrementing based on existing feature folders
+- **Feature-Aware Document Paths** — All BEADS+ commands (`/acli.beads.plan`, `/acli.beads.tasks`, `/acli.beads.analyze`, `/acli.beads.implement`) updated to automatically identify and use feature-specific folder structure
+- **Memory Summarization** — `getHandoverWithSummary()` method automatically summarizes large or old handovers to reduce context window usage; summaries are cached and preserve critical information (high-priority issues, test failures) while truncating low-priority details
+- **Automatic Learning Extraction from Git** — `extractLearningsFromGit()` method scans commit history for fix/bug/security commits and automatically creates learnings with proper categorization, tags, and severity based on commit messages and changed files
+- **Memory Pruning & Deduplication** — `pruneMemory()` method with three strategies: merge similar learnings (≥50% tag overlap), remove ineffective learnings (<30% success rate after ≥5 applications), and archive old learnings (>1 year); includes dry-run mode for safe preview
+- **Learning Templates** — 13 pre-built templates for common issues (SQL injection, XSS, N+1 queries, flaky tests, memory leaks, etc.) in `LearningTemplates.ts`; `saveLearningFromTemplate()` method creates consistent learnings with variable substitution
+- **Memory Features Usage Examples** — comprehensive example file (`examples/memory-features-usage.ts`) demonstrating all new memory system features with real-world scenarios
+- **Enhanced Documentation** — updated `MEMORY_SYSTEM.md` with detailed documentation for all new features, usage examples, and best practices
+
+### Changed
+- **BEADS+ Workflow Organization** — All BEADS+ commands now work with feature-specific folder structure instead of flat file organization; each feature gets its own isolated folder for spec, plan, tasks, and testing-plan documents
+- **Specify Command** — `/acli.beads.specify` now generates feature folder, assigns sequential ID, and creates git branch before writing spec document; includes feature metadata in spec.md frontmatter
+- **Plan Command** — `/acli.beads.plan` loads spec from feature folder and writes plan.md to same folder; identifies correct feature automatically or accepts user specification
+- **Tasks Command** — `/acli.beads.tasks` generates tasks.md in feature-specific folder with feature ID metadata header
+- **Analyze Command** — `/acli.beads.analyze` validates consistency across all documents within a feature folder; analysis report includes feature identification
+- **Implement Command** — `/acli.beads.implement` executes tasks from feature-specific folder with full feature context; pre-flight checks identify correct feature folder
+
+### Fixed
+- **Unicode character compilation errors** — replaced box-drawing characters (─, ┌, └) with ASCII equivalents (-, +) in all agent instruction strings
+- **Emoji character compilation errors** — replaced emoji markers with ASCII text equivalents ([DONE], [FAIL], [TEST], >>, [TASK], [DOC]) in handoff blocks across all 7 agents
+- **Template string syntax errors** — escaped triple backticks (\`\`\`) inside template strings to prevent premature template closure
+- All agent files (OrchestratorAgent, ArchitectureAgent, DevelopmentAgent, TestingAgent, CodeQualityAgent, RequirementGatheringAgent, SecurityAgent) now compile successfully without TypeScript errors
+
+## [1.0.8] - 2026-03-14
+
+### Added
+- **Testing Plan document** (`testing-plan.md`) — `/acli.beads.plan` (step 8) now creates `.specify/specs/###-feature-name/testing-plan.md` with unit/integration/E2E test suites mapped to user stories, coverage targets, test data requirements, test run commands, and a **Manual Testing Steps** section for the human to verify the feature end-to-end
+- **Manual Testing Steps in every handoff block** — all 7 agents now end every handoff with a rich `✅ WHAT WAS DONE / 🧪 MANUAL CHECK FOR YOU / 🔀 HAND OFF TO` block; development and testing agents include step-by-step manual test instructions the human can follow before the next agent takes over
+- **Manual Testing Steps section in handover template** — `templates/beads/handover.template.md` now includes `## Manual Testing Steps` with setup commands, numbered steps, expected results, and failure symptoms
+
+### Changed
+- `TestingAgent` Project Context now loads `.specify/specs/###-feature-name/testing-plan.md` before writing any tests; if it doesn't exist, the agent asks @architecture to create it via `/acli.beads.plan`
+- Orchestrator inline handoff examples updated to the richer block format including work summary and human check steps
+- Phase 4 (PLAN) deliverables updated to reflect the four documents now produced: `plan.md`, `reference-architecture.md`, `quality-standards.md`, `testing-plan.md`
+
+
+
+### Added
+- `/acli.onboard` slash command prompt — reverse-engineers an existing project into three foundational BEADS+ documents: `constitution.md`, `reference-architecture.md`, and `quality-standards.md`
+- `speckit-onboard.skill.md` skill — methodology guide for the onboarding process, including exploration strategy, inference rules, and update vs. create semantics
+- **Reference Architecture document** (`reference-architecture.md`) — `/acli.beads.plan` now creates `.specify/memory/reference-architecture.md` alongside `plan.md`; serves as the canonical architecture reference for all agents and all future features
+- **Quality Standards document** (`quality-standards.md`) — `/acli.beads.plan` and `/acli.onboard` now create `.specify/memory/quality-standards.md` with language/framework-specific linting rules, test standards, error handling patterns, and performance targets derived from the actual tech stack
+- **Handover Protocol** — all 7 agents (orchestrator, requirements, architecture, development, quality, security, testing) now include explicit instructions to create a `.specify/handovers/YYYY-MM-DD-{from}-to-{target}.md` document before every handoff, using the existing `templates/beads/handover.template.md`
+- **Project Context loading** — all 7 agents now include a mandatory "Project Context" section instructing them to load `constitution.md`, `reference-architecture.md`, and `quality-standards.md` (where applicable) before starting any task, and to flag conflicts before proceeding
+
+### Changed
+- `/acli.beads.plan` execution steps expanded from 6 to 8: steps 6 and 7 produce `reference-architecture.md` and `quality-standards.md` respectively
+- `CodeQualityAgent` now mandates loading `.specify/memory/quality-standards.md` at the start of every review; every rule in that document is enforced
+- `TestingAgent` now loads `quality-standards.md` for test framework, coverage thresholds, and run commands
+- `install.ts`: `acli.onboard.prompt.md` added to `BEADS_PROMPTS`; `speckit-onboard.skill.md` added to `SPECKIT_SKILLS`
+
 ## [1.0.6] - 2026-03-14
 
 ### Fixed
@@ -36,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.4] - 2025-07-09
 
 ### Added
-- BEADS+ slash commands installed to `.github/copilot/` via `acli install` — enables `/beads.*` commands in Copilot Chat
+- BEADS+ slash commands installed to `.github/copilot/` via `acli install` — enables `/acli.beads.*` commands in Copilot Chat
 - `installBeadsPrompts()` function in `src/commands/install.ts`
 - Six prompt templates: `beads.constitution`, `beads.specify`, `beads.plan`, `beads.tasks`, `beads.analyze`, `beads.implement`
 - `acli create agent` command to scaffold new `.agent.md` files

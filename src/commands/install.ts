@@ -11,12 +11,13 @@ interface InstallOptions {
 
 // Names of all BEADS+ prompt command files (without directory)
 const BEADS_PROMPTS = [
-  'beads.constitution.prompt.md',
-  'beads.specify.prompt.md',
-  'beads.plan.prompt.md',
-  'beads.tasks.prompt.md',
-  'beads.implement.prompt.md',
-  'beads.analyze.prompt.md',
+  'acli.beads.constitution.prompt.md',
+  'acli.beads.specify.prompt.md',
+  'acli.beads.plan.prompt.md',
+  'acli.beads.tasks.prompt.md',
+  'acli.beads.implement.prompt.md',
+  'acli.beads.analyze.prompt.md',
+  'acli.onboard.prompt.md',
   'acli.create.agent.prompt.md',
   'acli.create.skill.prompt.md',
 ];
@@ -30,6 +31,7 @@ const SPECKIT_SKILLS = [
   'speckit-analyze.skill.md',
   'speckit-checklist.skill.md',
   'speckit-implement.skill.md',
+  'speckit-onboard.skill.md',
 ];
 
 /**
@@ -53,7 +55,7 @@ export async function installSpeckitSkills(projectRoot: string): Promise<void> {
 
 /**
  * Install BEADS+ slash command prompt files into .github/prompts/
- * These become available as /beads.* chat commands in GitHub Copilot Chat.
+ * These become available as /acli.beads.* chat commands in GitHub Copilot Chat.
  */
 export async function installBeadsPrompts(projectRoot: string): Promise<void> {
   const destDir = path.join(projectRoot, '.github', 'prompts');
@@ -131,7 +133,7 @@ export async function installAgent(name: string, options: InstallOptions, projec
       for (const s of SPECKIT_SKILLS) {
         console.log(chalk.gray(`  ✓ ${s.replace('.skill.md', '')}`));
       }
-      console.log(chalk.cyan('\nIn Copilot Chat, use /beads.constitution to start your workflow.'));
+      console.log(chalk.cyan('\nIn Copilot Chat, use /acli.beads.constitution to start your workflow.'));
       console.log(chalk.gray(`Agents: ${config.agentsDir} | Prompts: .github/prompts/ | Skills: .github/skills/`));
     } catch (error) {
       spinner.fail('Failed to install agents');

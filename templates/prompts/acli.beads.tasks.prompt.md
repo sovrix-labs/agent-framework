@@ -13,18 +13,23 @@ Use any user input to adjust scope, priority, or sequencing of tasks.
 
 ## Your Task
 
-You are generating an executable task list at `.specify/specs/tasks.md`.
+You are generating an executable task list in the feature-specific folder.
 
 Tasks must be granular enough for an AI agent to complete in a single focused session, with clear acceptance criteria and no ambiguity.
 
 ## Execution Steps
 
-1. **Load required files**:
-   - **REQUIRED**: `.specify/specs/plan.md` — technical plan
-   - **REQUIRED**: `.specify/specs/spec.md` — feature requirements
+1. **Identify the feature folder**:
+   - Look for the most recent feature folder in `.specify/specs/` matching pattern `###-feature-name/` (e.g., `001-user-auth/`, `002-api-integration/`)
+   - If user specified a feature, use that folder
+   - All documents will be read from and written to this folder
+
+2. **Load required files**:
+   - **REQUIRED**: `.specify/specs/{feature-id}-{feature-name}/plan.md` — technical plan
+   - **REQUIRED**: `.specify/specs/{feature-id}-{feature-name}/spec.md` — feature requirements
    - **REQUIRED**: `.specify/memory/constitution.md` — principles
 
-2. **Identify task phases** in dependency order:
+3. **Identify task phases** in dependency order:
    - **Setup**: Project scaffolding, dependencies, config files
    - **Data / Models**: Define data structures, database schemas, types
    - **Core**: Main business logic, services
@@ -32,11 +37,12 @@ Tasks must be granular enough for an AI agent to complete in a single focused se
    - **Integration**: Wire components together, connect to external services
    - **Polish**: Error handling, logging, documentation, final validation
 
-3. **Write tasks** at `.specify/specs/tasks.md`:
+4. **Write tasks** to `.specify/specs/{feature-id}-{feature-name}/tasks.md`:
 
    ```markdown
    # Implementation Tasks: <Feature Name>
 
+   **Feature**: {feature-id} — {feature-name}
    **Generated**: YYYY-MM-DD
    **Plan**: plan.md
    **Total tasks**: <N>
@@ -74,16 +80,16 @@ Tasks must be granular enough for an AI agent to complete in a single focused se
    - Last updated: YYYY-MM-DD
    ```
 
-4. **Task quality rules** — each task MUST:
+5. **Task quality rules** — each task MUST:
    - Be completable in a single focused session (< 200 lines of new code as a guide)
    - Have testable acceptance criteria
    - List the exact files affected
    - Be dependency-ordered (prerequisites come first)
 
-5. **TDD ordering**: If the constitution requires TDD, place test tasks BEFORE or ALONGSIDE their implementation counterparts.
+6. **TDD ordering**: If the constitution requires TDD, place test tasks BEFORE or ALONGSIDE their implementation counterparts.
 
-6. **Output a brief summary**:
+7. **Output a brief summary**:
    - Total tasks per phase
    - Estimated complexity
    - Any prerequisites the user should set up manually
-   - Suggested next step: `/beads.implement`
+   - Suggested next step: `/acli.beads.implement`
