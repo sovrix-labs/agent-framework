@@ -14,7 +14,11 @@ export class DevelopmentAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Implement features, generate code, or refactor existing code',
-      handoffs: ['orchestrator', 'quality', 'testing'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Implementation complete. Validate the quality gate and proceed to the next task or phase.' },
+        { label: 'Hand off to quality', agent: 'quality', prompt: 'Implementation ready for review. Check code quality for the current task.' },
+        { label: 'Hand off to testing', agent: 'testing', prompt: 'Implementation ready. Run the tests for the current task.' },
+      ],
       userInvocable: true
     };
 

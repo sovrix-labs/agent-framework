@@ -1,3 +1,10 @@
+export interface HandoffConfig {
+  label: string;
+  agent: string;
+  prompt: string;
+  send?: boolean;
+}
+
 export interface AgentMetadata {
   name: string;
   displayName: string;
@@ -30,7 +37,7 @@ export interface AgentConfig {
   argumentHint?: string;           // Hint about how to invoke this agent
   userInvocable?: boolean;         // Whether user can invoke directly (default: true)
   model?: string;                  // Specific model to use
-  handoffs?: string[];             // Agents to handoff to
+  handoffs?: HandoffConfig[];       // Agents to handoff to
   disableModelInvocation?: boolean;
 
   // github-copilot only attributes
@@ -161,7 +168,7 @@ export abstract class Agent {
   }
 
   /**
-   * Simple YAML stringifier
+   * Simple YAML stringifier — handles flat values, string arrays, and object arrays
    */
   private yamlStringify(obj: any): string {
     let yaml = '---\n';
@@ -169,7 +176,15 @@ export abstract class Agent {
       if (Array.isArray(value)) {
         yaml += `${key}:\n`;
         for (const item of value) {
-          yaml += `  - ${item}\n`;
+          if (typeof item === 'object' && item !== null) {
+            const entries = Object.entries(item as Record<string, unknown>);
+            entries.forEach(([k, v], i) => {
+              const prefix = i === 0 ? '  - ' : '    ';
+              yaml += `${prefix}${k}: ${this.yamlValue(v)}\n`;
+            });
+          } else {
+            yaml += `  - ${item}\n`;
+          }
         }
       } else {
         yaml += `${key}: ${value}\n`;
@@ -177,5 +192,15 @@ export abstract class Agent {
     }
     yaml += '---\n\n';
     return yaml;
+  }
+
+  private yamlValue(v: unknown): string {
+    if (typeof v === 'boolean') return String(v);
+    const s = String(v);
+    // Quote strings containing YAML-special characters
+    if (/[:#\[\]{}|>&*?!,'"`%@]/.test(s) || s.includes('\n')) {
+      return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    }
+    return s;
   }
 }

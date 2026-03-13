@@ -14,7 +14,11 @@ export class SecurityAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Analyze security vulnerabilities, check OWASP compliance, or review security best practices',
-      handoffs: ['orchestrator', 'development', 'quality'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Security checklist complete. Validate the quality gate and proceed.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Security review complete. Apply the security requirements during implementation.' },
+        { label: 'Hand off to quality', agent: 'quality', prompt: 'Security checklist done. Complete the accessibility and performance checklists.' },
+      ],
       userInvocable: true
     };
 

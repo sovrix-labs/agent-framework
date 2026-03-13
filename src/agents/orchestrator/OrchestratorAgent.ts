@@ -17,7 +17,14 @@ export class OrchestratorAgent extends Agent {
       platform: 'vscode',
       argumentHint: 'Coordinate multi-agent workflows, manage complex tasks, or execute BEADS+ workflow',
       agents: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
-      handoffs: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
+      handoffs: [
+        { label: 'Hand off to requirements', agent: 'requirements', prompt: 'Start the BEADS+ workflow — Phase 1: create the project constitution using /beads.constitution.' },
+        { label: 'Hand off to architecture', agent: 'architecture', prompt: 'Requirements are complete. Phase 4: create the technical plan using /beads.plan.' },
+        { label: 'Hand off to security', agent: 'security', prompt: 'Architecture is complete. Phase 5: create the security checklist for the spec.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Phase 6: create the task list using /beads.tasks, then begin Phase 8 implementation.' },
+        { label: 'Hand off to testing', agent: 'testing', prompt: 'Implementation is ready. Run all tests for the current task or user story.' },
+        { label: 'Hand off to quality', agent: 'quality', prompt: 'Implementation is ready. Review code quality for the current task.' },
+      ],
       userInvocable: true
     };
 

@@ -14,7 +14,11 @@ export class ArchitectureAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Design system architecture, recommend patterns, or create technical decisions',
-      handoffs: ['orchestrator', 'development', 'security'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Architecture phase complete. Validate the quality gate and proceed to Phase 5 (Checklist).' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Technical plan is ready. Create the task list using /beads.tasks.' },
+        { label: 'Hand off to security', agent: 'security', prompt: 'Architecture is ready. Create the security checklist.' },
+      ],
       userInvocable: true
     };
 

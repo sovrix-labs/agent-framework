@@ -14,7 +14,11 @@ export class CodeQualityAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Review code quality, check best practices, or analyze maintainability',
-      handoffs: ['orchestrator', 'development', 'security'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Quality review complete. Validate the quality gate and proceed.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Quality issues found. Fix the issues and re-implement.' },
+        { label: 'Hand off to security', agent: 'security', prompt: 'Code is ready. Perform a targeted security review.' },
+      ],
       userInvocable: true
     };
 

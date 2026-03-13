@@ -14,7 +14,11 @@ export class TestingAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Generate tests, analyze coverage, or create testing strategies',
-      handoffs: ['orchestrator', 'development', 'quality'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Testing complete. Review results and either proceed to the next task or loop back if tests failed.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Tests failed. Review the failures and fix the implementation.' },
+        { label: 'Hand off to quality', agent: 'quality', prompt: 'Tests passed. Perform a final quality review before closing the task.' },
+      ],
       userInvocable: true
     };
 

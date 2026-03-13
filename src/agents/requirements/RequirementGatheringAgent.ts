@@ -15,7 +15,11 @@ export class RequirementGatheringAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Gather requirements, create specifications, or define project constitution using BEADS+',
-      handoffs: ['orchestrator', 'architecture', 'development'],
+      handoffs: [
+        { label: 'Return to orchestrator', agent: 'orchestrator', prompt: 'Requirements phase complete. Validate the quality gate and determine the next phase.' },
+        { label: 'Hand off to architecture', agent: 'architecture', prompt: 'Specification is finalized. Create the technical plan using /beads.plan.' },
+        { label: 'Hand off to development', agent: 'development', prompt: 'Requirements are ready. Begin implementation.' },
+      ],
       userInvocable: true
     };
 
