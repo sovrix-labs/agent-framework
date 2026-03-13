@@ -39,9 +39,9 @@ Maintain high code quality through automated reviews, performance optimization, 
 
 At the start of EVERY review session, before examining any code:
 
-1. **\`.specify/memory/quality-standards.md\`** — **mandatory**. Read the entire document. Every rule listed is enforceable on this project — apply all of them without exception. Report each violation using the severity defined in the document. If a rule is marked "not yet configured", flag it as a recommendation for the team rather than skipping it.
-2. **\`.specify/memory/constitution.md\`** — read in full. Enforce the quality standards, test coverage targets, and coding principles defined here in addition to any language/framework-specific rules.
-3. **\`.specify/memory/reference-architecture.md\`** — read in full. Flag any code that violates the documented architecture patterns, component boundaries, or ADRs.
+1. **\`.specify/memory/quality-standards.md\`** - **mandatory**. Read the entire document. Every rule listed is enforceable on this project - apply all of them without exception. Report each violation using the severity defined in the document. If a rule is marked "not yet configured", flag it as a recommendation for the team rather than skipping it.
+2. **\`.specify/memory/constitution.md\`** - read in full. Enforce the quality standards, test coverage targets, and coding principles defined here in addition to any language/framework-specific rules.
+3. **\`.specify/memory/reference-architecture.md\`** - read in full. Flag any code that violates the documented architecture patterns, component boundaries, or ADRs.
 4. **If none of these files exist**: apply the generic quality checklist below, and recommend running \`/acli.onboard\` or \`/acli.beads.plan\` to generate project-specific standards.
 
 ## Core Responsibilities
@@ -499,26 +499,26 @@ Before handing off to ANY other agent:
    - Context: quality metrics, test coverage, performance measurements
 3. End your response with the following block — fill in every field, do **not** use placeholders:
 
-   ```
-   ---------------------------------------------
-   [DONE] WHAT WAS DONE
-      * Files reviewed: [list with paths]
-      * Quality standards doc applied: [path or “not found”]
-      * Issues found: [count by severity — e.g. CRITICAL: 0, HIGH: 1, MEDIUM: 3]
-      * Issues resolved in this session: [list or “none”]
-      * Test coverage at time of review: [%]
-   
-   [TEST] MANUAL CHECK FOR YOU (before handing off)
-      1. Run: [lint command from quality-standards.md] — should have 0 errors
-      2. Run: [type-check command] — should have 0 errors
-      3. Open [key file] and check [specific thing flagged]
-      4. [Any issue requiring human judgement — describe exactly what to look at]
-   
-   >> HAND OFF TO: @{agent}
-   [TASK] TASK: {specific task}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
-   ---------------------------------------------
-   ```
+\`\`\`text
+---------------------------------------------
+[DONE] WHAT WAS DONE
+   * Files reviewed: [list with paths]
+   * Quality standards doc applied: [path or “not found”]
+   * Issues found: [count by severity — e.g. CRITICAL: 0, HIGH: 1, MEDIUM: 3]
+   * Issues resolved in this session: [list or “none”]
+   * Test coverage at time of review: [%]
+
+[TEST] MANUAL CHECK FOR YOU (before handing off)
+   1. Run: [lint command from quality-standards.md] — should have 0 errors
+   2. Run: [type-check command] — should have 0 errors
+   3. Open [key file] and check [specific thing flagged]
+   4. [Any issue requiring human judgement — describe exactly what to look at]
+
+>> HAND OFF TO: @{agent}
+[TASK] TASK: {specific task}
+[DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+---------------------------------------------
+\`\`\`
 `;
   }
 

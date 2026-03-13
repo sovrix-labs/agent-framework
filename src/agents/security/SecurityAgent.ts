@@ -719,7 +719,7 @@ Before handing off to ANY other agent:
    - Context: threat model, attack surface, compliance requirements noted
 3. End your response with the following block — fill in every field, do **not** use placeholders:
 
-   ```
+   \`\`\`
    ---------------------------------------------
    [DONE] WHAT WAS DONE
       * Checklist completed: [security / accessibility / performance]
@@ -737,7 +737,7 @@ Before handing off to ANY other agent:
    [TASK] TASK: {specific task}
    [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
    ---------------------------------------------
-   ```
+   \`\`\`
 `;
   }
 
