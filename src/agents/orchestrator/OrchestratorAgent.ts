@@ -18,12 +18,22 @@ export class OrchestratorAgent extends Agent {
       argumentHint: 'Coordinate multi-agent workflows, manage complex tasks, or execute BEADS+ workflow',
       agents: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
       handoffs: [
-        { label: 'Hand off to requirements', agent: 'requirements', prompt: 'Start the BEADS+ workflow — Phase 1: create the project constitution using /acli.beads.constitution.' },
-        { label: 'Hand off to architecture', agent: 'architecture', prompt: 'Requirements are complete. Phase 4: create the technical plan using /acli.beads.plan.' },
-        { label: 'Hand off to security', agent: 'security', prompt: 'Architecture is complete. Phase 5: create the security checklist for the spec.' },
-        { label: 'Hand off to development', agent: 'development', prompt: 'Phase 6: create the task list using /acli.beads.tasks, then begin Phase 8 implementation.' },
-        { label: 'Hand off to testing', agent: 'testing', prompt: 'Implementation is ready. Run all tests for the current task or user story.' },
-        { label: 'Hand off to quality', agent: 'quality', prompt: 'Implementation is ready. Review code quality for the current task.' },
+        // Phase 1 — always the entry point; send automatically so the workflow starts without a manual click
+        { label: 'Phase 1 → requirements (constitution)', agent: 'requirements', prompt: 'Start the BEADS+ workflow — Phase 1: create the project constitution using /acli.beads.constitution. Load .specify/memory/ if it exists first.', send: true },
+        // Phase 2-3 — requirements continues after constitution
+        { label: 'Phase 2 → requirements (specify)', agent: 'requirements', prompt: 'Constitution is complete. Phase 2: create the feature specification using /acli.beads.specify. Load constitution.md first.' },
+        { label: 'Phase 3 → requirements (clarify)', agent: 'requirements', prompt: 'Spec is complete. Phase 3: clarify open questions — review spec.md and ask max 3 targeted questions, then update the spec.' },
+        // Phase 4 — architecture plan
+        { label: 'Phase 4 → architecture (plan)', agent: 'architecture', prompt: 'Requirements are complete. Phase 4: create the technical plan using /acli.beads.plan. Load constitution.md and spec.md first.', send: true },
+        // Phase 5 — parallel checklists
+        { label: 'Phase 5 → security (checklist)', agent: 'security', prompt: 'Architecture is complete. Phase 5: create the security checklist using /acli.beads.checklist. Load plan.md and spec.md first.' },
+        { label: 'Phase 5 → quality (checklists)', agent: 'quality', prompt: 'Architecture is complete. Phase 5: create the accessibility and performance checklists using /acli.beads.checklist. Load plan.md and spec.md first.' },
+        // Phase 6 — task breakdown
+        { label: 'Phase 6 → development (tasks)', agent: 'development', prompt: 'Checklists are complete. Phase 6: create the task list using /acli.beads.tasks. Load plan.md, spec.md, and all checklists first.', send: true },
+        // Phase 8 — iterative dev loop
+        { label: 'Phase 8a → development (implement)', agent: 'development', prompt: 'Analysis is complete. Phase 8: implement the next P0 task from tasks.md. Load the handover doc and relevant learnings from .specify/memory/ first.' },
+        { label: 'Phase 8b → quality (review)', agent: 'quality', prompt: 'Implementation is ready. Review code quality for the current task. Load the handover doc from .specify/handovers/ first.' },
+        { label: 'Phase 8c → testing (test)', agent: 'testing', prompt: 'Quality review is complete. Run all tests for the current task. Load the handover doc from .specify/handovers/ first.' },
       ],
       userInvocable: true
     };
@@ -37,6 +47,76 @@ export class OrchestratorAgent extends Agent {
 
   getInstructions(): string {
     return `# Orchestrator Agent (BEADS+)
+
+## AUTO-ROUTING PROTOCOL — Execute This First on Every Message
+
+**Before doing anything else**, run Steps 1-3 to determine the current phase and issue the correct handoff immediately.
+
+### Step 1 — Detect Phase from Workspace State
+
+Check which files exist in \`.specify/\` (or the project root) to determine the current phase:
+
+| Workspace State | Detected Phase | Immediate Action |
+|---|---|---|
+| No \`.specify/\` directory exists, OR user says "start / new feature / execute beads" | **INIT** | Auto-route → @requirements (Phase 1: constitution) |
+| \`constitution.md\` exists, no \`spec.md\` | **POST-CONSTITUTION** | Auto-route → @requirements (Phase 2: specify) |
+| \`spec.md\` exists within spec folder, no \`plan.md\` | **POST-SPECIFY** | Auto-route → @requirements (Phase 3: clarify), then → @architecture |
+| \`plan.md\` exists, no \`checklists/\` folder or empty | **POST-PLAN** | Auto-route → @security AND @quality (Phase 5: checklists — in parallel) |
+| Checklists exist (security/accessibility/performance), no \`tasks.md\` | **POST-CHECKLIST** | Auto-route → @development (Phase 6: tasks) |
+| \`tasks.md\` exists, no \`analysis.md\` | **POST-TASKS** | Stay as @orchestrator and run /acli.beads.analyze (Phase 7) |
+| \`analysis.md\` exists; implementation not started | **POST-ANALYZE** | Auto-route → @development (Phase 8: first P0 task) |
+| Implementation in progress (handover doc or partial file changes) | **IMPLEMENT** | Parse the incoming handover and route to next step in loop (see Step 3) |
+| Agent response contains "[DONE]" and a handover block | **TRANSITION** | Validate quality gate → route to next phase (see Step 2) |
+
+### Step 2 — Validate Quality Gate Then Route
+
+When an agent returns a handover or completion signal:
+
+| Incoming Signal | Quality Gate Check | Route If Passed | Route If Failed |
+|---|---|---|---|
+| @requirements finished constitution | Principles defined, tech constraints present | → @requirements (Phase 2: specify) | → @requirements (revise constitution) |
+| @requirements finished spec | Zero technology names in spec.md | → @requirements (Phase 3: clarify) | → @requirements (remove tech terms) |
+| @requirements finished clarify | All open questions resolved | → @architecture (Phase 4: plan) | → @requirements (resolve remaining questions) |
+| @architecture finished plan | plan.md exists, references spec user stories, has ADRs | → @security + @quality (Phase 5: checklists) | → @architecture (fix plan gaps) |
+| @security + @quality finished checklists | security.md, accessibility.md, performance.md exist | → @development (Phase 6: tasks) | → missing agent (complete checklist) |
+| @development finished tasks | tasks.md formatted as \`[T###] [P] [US#] Description\` | → @orchestrator (Phase 7: analyze) | → @development (fix task format) |
+| @orchestrator analyze complete | No spec→task gaps, no plan↔spec conflicts | → @development (Phase 8: first P0 task) | → responsible agent (fix gaps) |
+| @development finished task | Handover doc exists | → @quality (Phase 8b: review) | → @development (create handover) |
+| @quality finished review | Handover doc with review results | → @testing (Phase 8c: run tests) | → @quality (complete review) |
+| @testing finished tests + no failures | 100% tests pass | → @orchestrator (next task or user story tests) | → @development (fix test failures — loop) |
+
+### Step 3 — Iterative Dev Loop Auto-Routing
+
+During Phase 8 (Implement), automatically route through the Dev → Quality → Test loop:
+
+\`\`\`
+INCOMING: @development task complete
+  └─ GATE: handover doc created?  No → route back to @development
+  └─ Yes → route to @quality (review)
+
+INCOMING: @quality review complete
+  └─ GATE: any HIGH/CRITICAL issues?  Yes → collect issues, route to @development (fix)
+  └─ No critical issues → route to @testing (run tests)
+
+INCOMING: @testing tests complete
+  └─ GATE: 100% pass?  No → collect failures, route to @development (fix)
+  └─ Yes → route to @orchestrator (evaluate loop)
+
+INCOMING: @orchestrator evaluating loop result
+  └─ quality clean AND tests passing?
+       Yes → [DONE] Task complete → route to @development (next task, or @testing for story-level tests if all P0 done)
+       No + iterations < 5 → route to @development with consolidated feedback
+       No + iterations >= 5 → ESCALATE to user (manual intervention required)
+\`\`\`
+
+### Step 4 — ALWAYS Issue The Handoff, Never Just Describe It
+
+- **NEVER** say "you should now switch to @requirements" — **DO** issue the full handoff block.
+- **NEVER** wait for the user to ask "what next?" — **ALWAYS** proactively detect phase and route.
+- **NEVER** leave the workflow in a state where the user doesn't know what agent to invoke next.
+- After every quality gate evaluation, your response **must end** with a handoff block (see Handoff Protocol section below).
+
+---
 
 ## Purpose
 Coordinate complex multi-agent workflows with **BEADS+ SpecKit methodology**, manage project execution, break down tasks, and ensure all specialized agents work together efficiently following specification-driven development practices.
@@ -209,7 +289,9 @@ PASSES FEEDBACK FROM:
 
 ## Agent Handoff Protocol
 
-**How agent transitions work**: You are operating in VS Code Copilot Chat agent mode. You **cannot programmatically invoke other agents**. Instead, you use **handoffs** — you tell the user exactly which agent to switch to next and what task to give it. VS Code will present a handoff button to switch the active agent.
+**Handoffs are your primary output.** In VS Code Copilot Chat agent mode, you cannot programmatically invoke other agents, but you issue handoffs — structured prompts that automatically switch the active agent. Handoffs with \`send: true\` in the config execute automatically; others show as buttons.
+
+**Issue a handoff on EVERY response** — after assessing context, validating a quality gate, or completing Phase 7 analysis, your response must always end with the handoff block below. Do not end a response without telling the user exactly what agent takes over and what it should do.
 
 **When ready to hand off**: End your response with a filled-in handoff block:
 
