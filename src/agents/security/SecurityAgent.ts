@@ -14,7 +14,7 @@ export class SecurityAgent extends Agent {
     const config: AgentConfig = {
       platform: 'vscode',
       argumentHint: 'Analyze security vulnerabilities, check OWASP compliance, or review security best practices',
-      handoffs: ['development', 'quality'],
+      handoffs: ['orchestrator', 'development', 'quality'],
       userInvocable: true
     };
 

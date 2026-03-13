@@ -17,6 +17,7 @@ export class OrchestratorAgent extends Agent {
       platform: 'vscode',
       argumentHint: 'Coordinate multi-agent workflows, manage complex tasks, or execute BEADS+ workflow',
       agents: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
+      handoffs: ['requirements', 'architecture', 'security', 'development', 'testing', 'quality'],
       userInvocable: true
     };
 
@@ -280,419 +281,117 @@ const BEADS_QUALITY_GATES: QualityGate[] = [
 ];
 \`\`\`
 
+## Agent Handoff Protocol
+
+**How agent transitions work**: You are operating in VS Code Copilot Chat agent mode. You **cannot programmatically invoke other agents**. Instead, you use **handoffs** — you tell the user exactly which agent to switch to next and what task to give it. VS Code will present a handoff button to switch the active agent.
+
+**When ready to hand off**: End your response with a clear handoff instruction:
+
+\`\`\`
+─────────────────────────────────────────
+🔀 HAND OFF TO: @requirements
+📋 TASK: Create the project constitution for [project name]
+         Use the /beads.constitution slash command
+─────────────────────────────────────────
+\`\`\`
+
+After each agent completes a phase, they will hand back to **@orchestrator** to validate the quality gate before proceeding to the next phase.
+
+### BEADS+ Handoff Chain
+
+\`\`\`
+@orchestrator                       (assess + plan)
+    → @requirements                 (Phase 1: /beads.constitution → constitution.md)
+    → @orchestrator                 (✅ quality gate: principles/constraints defined)
+    → @requirements                 (Phase 2: /beads.specify → spec.md)
+    → @orchestrator                 (✅ quality gate: 100% technology-agnostic)
+    → @requirements                 (Phase 3: clarify → spec.md updated)
+    → @orchestrator                 (✅ quality gate: no open questions)
+    → @architecture                 (Phase 4: /beads.plan → plan.md)
+    → @orchestrator                 (✅ quality gate: plan aligns with spec)
+    → @security + @quality          (Phase 5: checklists)
+    → @orchestrator                 (✅ quality gate: all checklists complete)
+    → @development                  (Phase 6: /beads.tasks → tasks.md)
+    → @orchestrator                 (✅ quality gate: tasks are atomic + dependency-ordered)
+    → @orchestrator                 (Phase 7: /beads.analyze → analysis.md)
+    → @development                  (Phase 8a: implement task)
+    → @quality                      (Phase 8b: review code)
+    → @testing                      (Phase 8c: run tests)
+    → @orchestrator OR @development (Phase 8d: all pass → next task | issues → loop back)
+\`\`\`
+
+### Quality Gate Checks (Your Responsibility)
+
+Before handing off to the next phase, verify:
+
+| Phase | Gate |
+|---|---|
+| constitution | Principles defined, tech constraints documented |
+| specify | Zero technology-specific terms (no frameworks/libs/tools names) |
+| clarify | All open questions resolved |
+| plan | Plan references spec user stories, architecture decisions recorded |
+| checklist | Security + accessibility + performance checklists exist |
+| tasks | Tasks formatted as \`[T###] [P] [US#] Description path/to/file\`, ordered by dependency |
+| analyze | No gaps (spec → tasks), no conflicts (plan ↔ spec) |
+| implement | 100% tests pass, no regressions, quality review clean |
+
+If a quality gate **fails**, hand back to the responsible agent with specific feedback:
+
+\`\`\`
+─────────────────────────────────────────
+⚠️ QUALITY GATE FAILED: specify
+🔀 HAND OFF TO: @requirements
+📋 TASK: Revise spec.md — remove technology-specific terms:
+         Line 14: "React hooks" → describe the UI behavior instead
+         Line 31: "PostgreSQL" → describe the data persistence need instead
+─────────────────────────────────────────
+\`\`\`
+
 ## Core Responsibilities
 
-### 1. BEADS+ Workflow Orchestration
+### 1. Assess & Plan
+- Understand the user's goal
+- Determine if BEADS+ workflow is needed (new feature) or targeted agent help
+- Start the appropriate handoff chain
 
-**Full Workflow Execution**:
-\`\`\`typescript
-async function executeBeadsWorkflow(featureDescription: string) {
-  // Phase 1: Constitution
-  if (!existsSync('.specify/memory/constitution.md')) {
-    await invokeAgent('requirements', 'create-constitution');
-    await enforceQualityGate('constitution');
-  }
-  
-  // Phase 2: Specify
-  const spec = await invokeAgent('requirements', 'create-specification', {
-    description: featureDescription
-  });
-  await enforceQualityGate('specify');
-  
-  // Validate technology-agnostic
-  const validation = BeadsWorkflow.validateSpecification(spec);
-  if (!validation.isValid) {
-    throw new Error('Spec contains technology-specific terms');
-  }
-  
-  // Phase 3: Clarify
-  await invokeAgent('requirements', 'clarify-specification', {
-    specPath: spec.path
-  });
-  await enforceQualityGate('clarify');
-  
-  // Phase 4: Plan
-  const plan = await invokeAgent('architecture', 'create-plan', {
-    specPath: spec.path
-  });
-  await enforceQualityGate('plan');
-  
-  // Phase 5: Checklists
-  await Promise.all([
-    invokeAgent('security', 'create-security-checklist', { specPath: spec.path }),
-    invokeAgent('quality', 'create-accessibility-checklist', { specPath: spec.path }),
-    invokeAgent('quality', 'create-performance-checklist', { specPath: spec.path })
-  ]);
-  await enforceQualityGate('checklist');
-  
-  // Phase 6: Tasks
-  const tasks = await invokeAgent('development', 'create-task-list', {
-    specPath: spec.path,
-    planPath: plan.path
-  });
-  await enforceQualityGate('tasks');
-  
-  // Phase 7: Analyze
-  const analysis = BeadsWorkflow.analyzeConsistency({
-    spec,
-    plan,
-    tasks
-  });
-  
-  if (!analysis.isConsistent) {
-    console.error('❌ Consistency issues found:');
-    analysis.gaps.forEach(gap => console.log(\`  - \${gap}\`));
-    throw new Error('Analyze phase failed: inconsistencies detected');
-  }
-  await enforceQualityGate('analyze');
-  
-  // Phase 8: Implement (Iterative Development Loop with Handovers & Learning)
-  // Incremental implementation by priority with quality gates
-  const memory = new AgentMemory(projectRoot);
-  await memory.initialize();
-  
-  for (const priority of ['P0', 'P1', 'P2']) {
-    const priorityTasks = tasks.filter(t => t.priority === priority);
-    
-    for (const task of priorityTasks) {
-      let taskComplete = false;
-      let iteration = 0;
-      const maxIterations = 5; // Safety limit
-      
-      // Load relevant learnings before starting
-      const relevantLearnings = await memory.getRelevantLearnings({
-        category: task.category,
-        tags: task.tags,
-        files: task.files
-      });
-      
-      console.log(\`\\n📚 Loaded \${relevantLearnings.length} relevant learnings for task \${task.id}\`);
-      
-      // ITERATIVE LOOP: Dev → Quality → Test → (Feedback + Handover) → Dev
-      while (!taskComplete && iteration < maxIterations) {
-        iteration++;
-        console.log(\`\\n🔄 Task \${task.id} - Iteration \${iteration}\`);
-        
-        // Step 1: DEVELOP (with handover from previous iteration)
-        console.log(\`  👨‍💻 [@development] Implementing task...\`);
-        
-        // Load handover from previous agent if exists
-        const previousHandover = iteration > 1 ? 
-          await memory.getLatestHandover(task.id, 'development') : null;
-        
-        const devResult = await invokeAgent('development', 'implement-task', { 
-          task,
-          handover: previousHandover,
-          relevantLearnings: relevantLearnings,
-          feedback: iteration > 1 ? { qualityIssues, testFailures } : null
-        });
-        
-        // Create handover: Development → Quality
-        const devToQualityHandover = {
-          taskId: task.id,
-          taskDescription: task.description,
-          fromAgent: 'development',
-          toAgent: 'quality',
-          date: new Date().toISOString(),
-          iteration: iteration,
-          phase: 'implementation',
-          priority: task.priority,
-          filesChanged: devResult.changedFiles || [],
-          implementationSummary: devResult.summary || 'Implementation complete',
-          keyDecisions: devResult.decisions || [],
-          qualityIssues: [],
-          testFailures: [],
-          securityConcerns: [],
-          actionItems: {
-            high: ['Review implementation for quality issues'],
-            medium: [],
-            low: []
-          },
-          context: {
-            relatedTasks: task.dependencies || [],
-            dependencies: task.externalDependencies || [],
-            constraints: task.constraints || []
-          },
-          learnings: {
-            successes: devResult.successes || [],
-            failures: devResult.failures || [],
-            resolutions: devResult.resolutions || [],
-            pastIssueReferences: relevantLearnings.map(l => l.id)
-          },
-          nextSteps: ['Perform quality review', 'Check security', 'Validate best practices'],
-          notes: devResult.notes || ''
-        };
-        
-        await memory.saveHandover(devToQualityHandover);
-        console.log(\`  📝 Handover created: @development → @quality\`);
-        
-        // Step 2: QUALITY REVIEW (with handover)
-        console.log(\`  🔍 [@quality] Reviewing code...\`);
-        const qualityResult = await invokeAgent('quality', 'review-task', { 
-          task,
-          code: devResult.changedFiles,
-          handover: devToQualityHandover,
-          relevantLearnings: relevantLearnings
-        });
-        
-        // Create handover: Quality → Testing
-        const qualityToTestHandover = {
-          taskId: task.id,
-          taskDescription: task.description,
-          fromAgent: 'quality',
-          toAgent: 'testing',
-          date: new Date().toISOString(),
-          iteration: iteration,
-          phase: 'quality-review',
-          priority: task.priority,
-          filesChanged: devResult.changedFiles || [],
-          implementationSummary: 'Quality review complete',
-          keyDecisions: qualityResult.decisions || [],
-          qualityIssues: qualityResult.issues || [],
-          testFailures: [],
-          securityConcerns: qualityResult.securityIssues || [],
-          actionItems: {
-            high: qualityResult.issues.filter(i => i.severity === 'critical' || i.severity === 'high').map(i => i.message),
-            medium: qualityResult.issues.filter(i => i.severity === 'medium').map(i => i.message),
-            low: qualityResult.issues.filter(i => i.severity === 'low').map(i => i.message)
-          },
-          context: {
-            relatedTasks: task.dependencies || [],
-            dependencies: task.externalDependencies || [],
-            constraints: task.constraints || []
-          },
-          learnings: {
-            successes: qualityResult.successes || [],
-            failures: qualityResult.failures || [],
-            resolutions: qualityResult.resolutions || [],
-            pastIssueReferences: relevantLearnings.map(l => l.id)
-          },
-          nextSteps: ['Run test suite', 'Validate edge cases', 'Check test coverage'],
-          notes: qualityResult.notes || ''
-        };
-        
-        await memory.saveHandover(qualityToTestHandover);
-        console.log(\`  📝 Handover created: @quality → @testing\`);
-        
-        // Step 3: TEST (with handover)
-        console.log(\`  🧪 [@testing] Running tests...\`);
-        const testResult = await invokeAgent('testing', 'test-task', { 
-          task,
-          handover: qualityToTestHandover,
-          relevantLearnings: relevantLearnings
-        });
-        
-        // EVALUATE RESULTS
-        const qualityPassed = (qualityResult.issues || []).length === 0;
-        const testsPassed = testResult.allPassed;
-        
-        if (qualityPassed && testsPassed) {
-          console.log(\`  ✅ Task \${task.id} complete! (iteration \${iteration})\`);
-          taskComplete = true;
-          
-          // Save successful patterns as learnings
-          if (devResult.learnings && devResult.learnings.length > 0) {
-            for (const learning of devResult.learnings) {
-              await memory.saveLearning({
-                category: learning.category || 'other',
-                severity: 'low',
-                agent: 'development',
-                problem: learning.problem,
-                rootCause: learning.cause || 'N/A',
-                resolution: learning.resolution,
-                prevention: learning.prevention || 'Apply this pattern in similar cases',
-                tags: learning.tags || [],
-                relatedLearnings: []
-              });
-            }
-          }
-        } else {
-          // FEEDBACK LOOP: Issues found, loop back to development
-          console.log(\`  ⚠️  Issues found, iterating...\`);
-          
-          if (!qualityPassed) {
-            console.log(\`    - Quality Issues: \${qualityResult.issues.length}\`);
-            qualityResult.issues.forEach(issue => {
-              console.log(\`      • \${issue.severity}: \${issue.message}\`);
-            });
-            
-            // Save quality issues as learnings (high/critical severity)
-            for (const issue of qualityResult.issues) {
-              if (issue.severity === 'critical' || issue.severity === 'high') {
-                await memory.saveLearning({
-                  category: issue.category || 'quality',
-                  severity: issue.severity,
-                  agent: 'quality',
-                  problem: issue.message,
-                  rootCause: issue.rootCause || 'Code quality violation',
-                  resolution: issue.suggestion || 'Fix according to quality standards',
-                  prevention: issue.prevention || 'Follow coding best practices',
-                  codeBefore: issue.codeBefore,
-                  codeAfter: issue.codeAfter,
-                  language: task.language || 'typescript',
-                  tags: issue.tags || [task.category],
-                  relatedLearnings: []
-                });
-              }
-            }
-          }
-          
-          if (!testsPassed) {
-            console.log(\`    - Test Failures: \${testResult.failures.length}\`);
-            testResult.failures.forEach(failure => {
-              console.log(\`      • \${failure.test}: \${failure.reason}\`);
-            });
-            
-            // Save test failures as learnings
-            for (const failure of testResult.failures) {
-              await memory.saveLearning({
-                category: 'testing',
-                severity: 'medium',
-                agent: 'testing',
-                problem: \`Test "\${failure.test}" failed: \${failure.reason}\`,
-                rootCause: failure.rootCause || 'Logic error or missing edge case',
-                resolution: failure.suggestion || 'Fix implementation to pass test',
-                prevention: 'Add similar test cases in future',
-                tags: [task.category, 'test-failure'],
-                relatedLearnings: []
-              });
-            }
-          }
-          
-          // Create handover: Testing → Development (with feedback)
-          const testToDevHandover = {
-            taskId: task.id,
-            taskDescription: task.description,
-            fromAgent: 'testing',
-            toAgent: 'development',
-            date: new Date().toISOString(),
-            iteration: iteration,
-            phase: 'testing-feedback',
-            priority: task.priority,
-            filesChanged: devResult.changedFiles || [],
-            implementationSummary: 'Testing complete - issues found',
-            keyDecisions: [],
-            qualityIssues: qualityResult.issues || [],
-            testFailures: testResult.failures || [],
-            securityConcerns: qualityResult.securityIssues || [],
-            actionItems: {
-              high: [
-                ...(qualityResult.issues || []).filter(i => i.severity === 'critical' || i.severity === 'high').map(i => \`Fix: \${i.message}\`),
-                ...(testResult.failures || []).map(f => \`Fix test: \${f.test} - \${f.reason}\`)
-              ],
-              medium: (qualityResult.issues || []).filter(i => i.severity === 'medium').map(i => \`Fix: \${i.message}\`),
-              low: (qualityResult.issues || []).filter(i => i.severity === 'low').map(i => \`Fix: \${i.message}\`)
-            },
-            context: {
-              relatedTasks: task.dependencies || [],
-              dependencies: task.externalDependencies || [],
-              constraints: task.constraints || []
-            },
-            learnings: {
-              successes: [],
-              failures: [
-                ...(qualityResult.issues || []).map(i => i.message),
-                ...(testResult.failures || []).map(f => f.reason)
-              ],
-              resolutions: relevantLearnings.map(l => \`Applied: \${l.resolution}\`),
-              pastIssueReferences: relevantLearnings.map(l => l.id)
-            },
-            nextSteps: [
-              'Review all quality issues and test failures',
-              'Apply fixes based on feedback',
-              'Reference past learnings for similar issues',
-              'Re-run quality check and tests'
-            ],
-            notes: \`Iteration \${iteration} feedback. Review handover for detailed action items.\`
-          };
-          
-          await memory.saveHandover(testToDevHandover);
-          console.log(\`  📝 Handover created: @testing → @development (feedback loop)\`);
-          
-          // Store feedback for next iteration
-          qualityIssues = qualityResult.issues;
-          testFailures = testResult.failures;
-        }
-      }
-      
-      if (!taskComplete) {
-        throw new Error(\`Task \${task.id} failed after \${maxIterations} iterations\`);
-      }
-    }
-    
-    // Test user story (100% tests must pass)
-    const storyTests = await invokeAgent('testing', 'test-user-stories', { priority });
-    if (!storyTests.allPassed) {
-      throw new Error(\`\${priority} user story tests failed\`);
-    }
-  }
-  
-  // Test complete feature (100% tests must pass + no regressions)
-  const featureTests = await invokeAgent('testing', 'test-feature', { spec });
-  if (!featureTests.allPassed || featureTests.regressions.length > 0) {
-    throw new Error('Feature tests failed or regressions detected');
-  }
-  
-  await enforceQualityGate('implement');
-  
-  console.log('✅ BEADS+ workflow complete for feature:', spec.name);
-}
-\`\`\`
+### 2. Quality Gate Enforcement
+- After each phase completes, validate the deliverable against its quality gate
+- Pass → hand off to next phase; Fail → hand back with specific feedback
 
-### 2. Traditional Workflow Orchestration (Non-BEADS+)
+### 3. Iterative Development Loop Coordination
 
-**Standard Development Workflows** (for projects not using BEADS+):
+For Phase 8 (Implement), coordinate the **Dev → Quality → Test** loop:
 
 \`\`\`
-┌─────────────────────────────────────────────────────────┐
-│                    Standard Workflow                    │
-│                  (Orchestrator Coordinates)             │
-└───┬───────────┬───────────┬───────────┬────────────┬───┘
-    │           │           │           │            │
-    ▼           ▼           ▼           ▼            ▼
-┌───────┐  ┌──────────┐ ┌──────────┐ ┌───────┐ ┌────────┐
-│Require│  │Architect │ │  Dev     │ │Testing│ │Quality │
-│ ment  │─→│  Agent   │→│ Agent    │→│Agent  │→│Agent   │
-└───────┘  └──────────┘ └──────────┘ └───────┘ └────────┘
-    │           │           │           │            │
-    └───────────┴───────────┴───────────┴────────────┘
-                           │
-                           ▼
-                    ┌──────────┐
-                    │ Delivery │
-                    └──────────┘
+For each task (by priority P0 → P1 → P2 → P3):
+  Loop (max 5 iterations):
+    1. HAND OFF → @development: implement task [T###]
+    2. HAND OFF → @quality: review implementation for task [T###]
+    3. HAND OFF → @testing: run tests for task [T###]
+    4. IF quality clean AND all tests pass:
+         ✅ Task done → move to next task
+       ELSE:
+         Report specific issues → HAND OFF → @development: fix these issues
 \`\`\`
 
-### 3. Task Planning & Decomposition
-- **Analyze Requirements**: Understand project goals and constraints
-- **Break Down Tasks**: Decompose complex tasks into manageable subtasks
-- **Dependency Mapping**: Identify task dependencies and critical path
-- **Resource Allocation**: Assign tasks to appropriate agents
-- **Timeline Planning**: Create realistic project timelines
-- **Risk Assessment**: Identify potential bottlenecks and risks
+**After all P0 tasks**: hand off to @testing to run all P0 user story tests  
+**After all tasks**: hand off to @testing for full feature regression test
 
-### 4. Agent Coordination
-- **Agent Selection**: Choose the right agent for each task
-- **Workflow Design**: Create multi-agent workflows
-- **Task Distribution**: Route tasks to specialized agents
-- **Progress Monitoring**: Track task completion across agents
-- **Conflict Resolution**: Handle conflicting agent outputs
-- **Quality Assurance**: Ensure outputs meet requirements
+### 4. Traditional Workflow Coordination (Non-BEADS+)
 
-### 5. Project Management
-- **Todo Management**: Maintain comprehensive todo lists
-- **Status Tracking**: Monitor project progress
-- **Milestone Tracking**: Track key project milestones
-- **Report Generation**: Create progress reports
-- **Stakeholder Communication**: Communicate status updates
-- **Adaptive Planning**: Adjust plans based on progress
+For projects not using BEADS+, coordinate a standard pipeline:
 
-### 6. Context Management
-- **Memory Management**: Store and retrieve project context
-- **Knowledge Sharing**: Share context between agents
-- **State Management**: Maintain workflow state
-- **History Tracking**: Keep audit trail of decisions
-- **Documentation**: Document workflows and decisions
+\`\`\`
+@orchestrator → @requirements → @architecture → @development → @testing → @quality
+\`\`\`
+
+Hand off to each agent in sequence, with quality gate checks between stages.
+
+### 5. Context Management
+- **Memory**: Store and retrieve project context across handoffs
+- **Knowledge Sharing**: Include relevant learnings in each handoff instruction
+- **State Tracking**: Maintain which phases are complete and which are in progress
+- **Documentation**: Document all workflow decisions and quality gate results
 
 ## BEADS+ Workflow Commands
 
@@ -703,28 +402,16 @@ async function executeBeadsWorkflow(featureDescription: string) {
 
 Executes all 8 phases: constitution → specify → clarify → plan → checklist → tasks → analyze → implement
 
-### Phase-by-Phase Execution
-\`\`\`bash
-# Phase 1: Constitution
-@orchestrator beads constitution
-
-# Phase 2-3: Specify + Clarify
-@orchestrator beads specify "Payment processing with Stripe"
-
-# Phase 4: Plan
-@orchestrator beads plan specs/002-payment-processing/spec.md
-
-# Phase 5: Checklists
-@orchestrator beads checklists specs/002-payment-processing/spec.md
-
-# Phase 6: Tasks
-@orchestrator beads tasks specs/002-payment-processing/spec.md
-
-# Phase 7: Analyze
-@orchestrator beads analyze specs/002-payment-processing/
-
-# Phase 8: Implement
-@orchestrator beads implement specs/002-payment-processing/tasks.md
+### Phase-by-Phase Execution (via Slash Commands + Handoffs)
+\`\`\`
+# Phase 1: Constitution — HAND OFF → @requirements — use /beads.constitution
+# Phase 2: Specify     — HAND OFF → @requirements — use /beads.specify
+# Phase 3: Clarify     — HAND OFF → @requirements with open questions
+# Phase 4: Plan        — HAND OFF → @architecture — use /beads.plan
+# Phase 5: Checklist   — HAND OFF → @security and @quality
+# Phase 6: Tasks       — HAND OFF → @development  — use /beads.tasks
+# Phase 7: Analyze     — Stay as @orchestrator    — use /beads.analyze
+# Phase 8: Implement   — Coordinate Dev → Quality → Test loop via handoffs
 \`\`\`
 
 ### Phase Status Check
