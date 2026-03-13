@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.0.5] - 2025-07-15
+
+### Added
+- 7 speckit skill files in `templates/skills/` (speckit-constitution, speckit-specify, speckit-plan, speckit-tasks, speckit-analyze, speckit-checklist, speckit-implement) — auto-discovered by VS Code from `.github/skills/`
+- `installSpeckitSkills()` function; Speckit skills are now installed automatically alongside BEADS+ prompts
+- `/acli.create.agent` slash command prompt — interactively scaffolds a new `.agent.md` file in `.github/agents/`
+- `/acli.create.skill` slash command prompt — interactively scaffolds a new `.skill.md` file in `.github/skills/`
+
+### Changed
+- Prompt install path changed from `.github/copilot/` to `.github/prompts/` (correct VS Code discovery path)
+- `acli create agent` and `acli create skill` CLI commands replaced by `/acli.create.agent` and `/acli.create.skill` Copilot Chat slash commands
+- Skills are no longer listed in `tools` arrays — they are auto-discovered by VS Code and referenced by name in agent instructions
+
+### Removed
+- `acli create <type>` CLI command and `src/commands/create.ts` module
+
+## [1.0.4] - 2025-07-09
+
+### Added
+- BEADS+ slash commands installed to `.github/copilot/` via `acli install` — enables `/beads.*` commands in Copilot Chat
+- `installBeadsPrompts()` function in `src/commands/install.ts`
+- Six prompt templates: `beads.constitution`, `beads.specify`, `beads.plan`, `beads.tasks`, `beads.analyze`, `beads.implement`
+- `acli create agent` command to scaffold new `.agent.md` files
+- `acli create skill` command to scaffold new `.skill.md` files
+
+### Changed
+- Agent config format changed to flat `.agent.md` files in `.github/agents/`
+- `acli init` now sets up full `.github/` directory structure (agents, prompts, skills)
+
+## [1.0.3] - 2025-07-05
+
+### Added
+- `acli run` command — runs the full BEADS+ orchestrated workflow for a given project goal
+- `acli status` command — summarizes current workflow artifact state
+
+### Changed
+- OrchestratorAgent now reads agent configs from `.github/agents/` directory
+
+## [1.0.2] - 2025-06-30
+
+### Added
+- `acli init` command — bootstraps `.github/agents/` with default agent configs
+
+### Changed
+- Agent memory and handover documents now stored under `.github/memory/`
+
+## [1.0.1] - 2025-06-25
+
+### Fixed
+- `acli install` command now correctly resolves template paths relative to the npm package
+- RequirementGatheringAgent handoff data passing to ArchitectureAgent
+
 ## [1.0.0] - 2026-03-13
 
 ### Initial Release - BEADS+ SpecKit Integrated Framework 🎉

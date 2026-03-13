@@ -1,395 +1,218 @@
 # Agent Framework CLI
 
-A powerful CLI tool for building, managing, and deploying AI agents and skills for VS Code + GitHub Copilot with **BEADS+ SpecKit** workflow integration.
+A powerful CLI tool for building, managing, and deploying AI agents and skills for VS Code + GitHub Copilot with **BEADS+** specification-driven development workflow.
 
 ## Features
 
-- 🤖 **Pre-built Agents**: Ships with production-ready agents for common workflows
-- 📋 **BEADS+ SpecKit**: Specification-driven development workflow with quality gates
+- 🤖 **7 Pre-built Agents**: Production-ready agents for every phase of development
+- 💬 **BEADS+ Slash Commands**: Spec-driven `/beads.*` chat commands — no CLI required
+- 🔄 **Human-in-the-Loop Iteration**: Dev → Quality → Test loop with review checkpoints
 - 🛠️ **Custom Agent Builder**: Create your own specialized agents
 - 📦 **Skill System**: Modular skill packages for reusable functionality
-- 🔌 **VS Code Integration**: Seamless integration with VS Code and GitHub Copilot
-- 📝 **Template System**: Quick scaffolding with best-practice templates
-- ✅ **Quality Gates**: 100% test pass requirement at every level
+- 🔌 **VS Code + Copilot Integration**: Agents installed in `.github/agents/` for instant use
+- 🧠 **Memory & Handover System**: Agents pass context and learn from mistakes
 
 ## Installation
-
-Install globally via npm:
 
 ```bash
 npm install -g agent-framework-cli
 ```
 
-Or with yarn:
-
-```bash
-yarn global add agent-framework-cli
-```
-
 ## Quick Start
 
-### 1. Initialize Framework in Your Project
+### 1. Initialize the framework
 
 ```bash
 acli init
 ```
 
-This creates the agent directory structure and configuration file.
+This creates:
+- `.github/agents/` — agent directory
+- `.github/skills/` — skills directory  
+- `.github/prompts/` — BEADS+ slash command prompts
+- `.specify/memory/` and `.specify/specs/` — workflow artifact directories
 
-### 2. Install Pre-built Agents
+### 2. Install all agents
 
 ```bash
-# Install individual agents
-acli install requirements
-acli install development
-acli install testing
-acli install quality
-
-# Or install all 7 agents at once (recommended)
 acli install orchestrator
 ```
 
-**Note**: Installing `orchestrator` automatically installs all 7 pre-built agents (requirements, architecture, security, development, testing, quality, and orchestrator).
+Installs all 7 pre-built agents **and** the BEADS+ slash commands at once.
 
-### 3. Use Agents in VS Code Copilot Chat
+### 3. Use BEADS+ slash commands in Copilot Chat
 
-After installing agents, access them via `@agentName` in Copilot Chat:
+Open GitHub Copilot Chat and use these commands in order:
 
-```markdown
+```
+/beads.constitution   Create project principles and tech rules
+/beads.specify        Define what you want to build (user stories)
+/beads.plan           Technical architecture and file structure
+/beads.tasks          Executable, ordered task list
+/beads.analyze        Consistency check before implementing
+/beads.implement      Iterative Dev→Quality→Test with human review
+```
+
+### 4. Use agents in Copilot Chat
+
+```
 @requirements gather requirements for a user authentication system
-
-@development implement the auth system based on the requirements
-
-@testing generate test cases for the auth system
-
-@quality review the implementation for security issues
+@architecture design the system based on these requirements
+@development implement the auth module
+@quality review the implementation
+@testing generate test cases
+@security check for OWASP Top 10 vulnerabilities
+@orchestrator coordinate the full workflow
 ```
 
-### 4. Create Custom Agents
+### 5. Create custom agents or skills
 
-```bash
-acli create agent --name "MyCustomAgent" --description "My specialized agent"
+Use slash commands in Copilot Chat:
+
+```
+/acli.create.agent   Scaffold a new .agent.md file interactively
+/acli.create.skill   Scaffold a new .skill.md file interactively
 ```
 
-### 5. Start BEADS+ Workflow
-
-```bash
-# Initialize project with constitution
-acli beads constitution
-
-# Create feature specification
-acli beads specify
-
-# Execute full workflow
-acli beads workflow
-```
-
-## BEADS+ SpecKit Workflow
+## BEADS+ Workflow
 
 **BEADS+** = Better Engineering through Adaptive Development with Specifications
 
-The framework now includes complete [BEADS+ SpecKit] integration with 8-phase workflow:
+Inspired by [spec-kit](https://github.com/github/spec-kit), the BEADS+ workflow uses chat slash commands for structured, specification-driven development:
 
 ```
-CONSTITUTION → SPECIFY → CLARIFY → PLAN → CHECKLIST → TASKS → ANALYZE → IMPLEMENT
-     ↓           ↓          ↓         ↓        ↓          ↓         ↓          ↓
-  Principles   Spec.md    Q&A      Plan.md  Quality   Tasks.md   Validate  Code+Tests
+/beads.constitution → /beads.specify → /beads.plan → /beads.tasks → /beads.analyze → /beads.implement
+       ↓                    ↓                ↓              ↓               ↓                  ↓
+  Principles           User stories      Architecture    Task list      Validation       Dev→QA→Test
 ```
 
-### Key Features:
-- ✅ **Technology-Agnostic Specs**: Focus on WHAT/WHY, not HOW
-- ✅ **Pivotal Labs Practices**: P0-P3 priorities, user stories, TDD
-- ✅ **Quality Gates**: Enforced at every phase
-- ✅ **Iterative Development**: Dev → Quality → Test feedback loops
-- ✅ **Handover Documents**: Structured context passed between agents
-- ✅ **Learning System**: Agents learn from mistakes and save resolutions
-- ✅ **100% Test Pass**: Mandatory at task/story/feature levels
-- ✅ **Consistency Validation**: Automated spec ↔ plan ↔ tasks analysis
+### BEADS+ Slash Commands
 
-### Quick Start with BEADS+:
+| Command | Purpose |
+|---|---|
+| `/beads.constitution` | Create or update project governing principles, tech constraints, and non-negotiable rules |
+| `/beads.specify` | Define what to build — user stories, acceptance criteria (technology-agnostic) |
+| `/beads.plan` | Technical implementation plan — tech stack, architecture, file structure |
+| `/beads.tasks` | Break the plan into ordered, executable tasks with acceptance criteria per task |
+| `/beads.analyze` | Cross-artifact consistency check: spec ↔ plan ↔ tasks alignment |
+| `/beads.implement` | Execute tasks with **Dev → Quality → Test** loop and human review checkpoints |
+| `/acli.create.agent` | Scaffold a new custom `.agent.md` file interactively in `.github/agents/` |
+| `/acli.create.skill` | Scaffold a new custom `.skill.md` file interactively in `.github/skills/` |
 
-```bash
-# Initialize project
-acli init
+### `/beads.implement` — Human-in-the-Loop
 
-# Phase 1: Create constitution
-acli beads constitution
+For each task, the agent runs three steps then **stops for your review**:
 
-# Phase 2: Create specification
-acli beads specify
+1. **Dev** — implements the code following the plan and constitution
+2. **Quality** — self-reviews for code quality, security (OWASP Top 10), and constitution compliance
+3. **Test** — writes/runs tests, auto-retries on failure (max 3 attempts)
+4. **⛔ Checkpoint** — presents a summary and waits for your response:
 
-# Phase 3: Clarify ambiguities
-acli beads clarify --featureId 001-user-auth
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ TASK-001 Complete — Human Review Required
 
-# Phase 4: Technical plan
-acli beads plan --featureId 001-user-auth
+📋 What was done: ...
+🔍 Quality: PASS
+🧪 Tests: 3 passing
 
-# Phase 5: Quality checklists
-acli beads checklist --featureId 001-user-auth
-
-# Phase 6: Executable tasks
-acli beads tasks --featureId 001-user-auth
-
-# Phase 7: Validate consistency
-acli beads analyze --featureId 001-user-auth
-
-# Phase 8: Implement with TDD
-acli beads implement --featureId 001-user-auth --priority P0
-
-# OR: Execute full workflow
-acli beads workflow
+Options:
+  ▶  "continue"  — Accept and move to the next task
+  🔄  "retry"    — Redo with your feedback
+  ✏️  "adjust"   — Adjust approach for next task
+  ⛔  "stop"     — Save progress and halt
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-📖 **Complete Guides**: 
-- [BEADS_WORKFLOW.md](./BEADS_WORKFLOW.md) - Full BEADS+ workflow documentation
-- [ITERATIVE_DEVELOPMENT.md](./ITERATIVE_DEVELOPMENT.md) - Iterative dev loop with quality gates
+Progress is always saved to `.specify/memory/handover.md` so you can resume with `/beads.implement` any time.
 
 ## Pre-built Agents
 
-### 1. Requirement Gathering Agent (BEADS+)
-Specification-driven development with technology-agnostic requirements:
-- Create project constitution
-- Generate feature specifications (WHAT/WHY only)
-- Ask clarifying questions (max 3 per round)
-- Validate technology-agnostic requirement
-- Pivotal Labs user stories with P0-P3 priorities
+All agents install as `{name}.agent.md` directly in `.github/agents/` with `target: vscode` for full VS Code attribute support.
 
-### 2. Architecture Agent
-Design scalable and maintainable systems:
-- System architecture design and patterns
-- Component design and data flow
-- Architecture Decision Records (ADRs)
-- Design pattern recommendations
-- Technology selection guidance
-
-### 3. Security Agent
-Comprehensive security analysis:
-- Vulnerability detection and scanning
-- OWASP Top 10 compliance
-- Security best practices enforcement
-- Penetration testing guidance
-- Dependency security audits
-
-### 4. Development Agent
-Accelerates feature implementation:
-- Code generation from specifications
-- Feature development and refactoring
-- Implementation of architecture designs
-- Following security requirements
-
-### 5. Testing Agent
-Comprehensive testing support:
-- Test case generation
-- Coverage analysis
-- Unit, integration, and e2e test scaffolding
-- Test data generation
-
-### 6. Code Quality Agent
-Maintains code excellence:
-- Code review automation
-- Best practice enforcement
-- Performance analysis
-- Maintainability checks
-
-### 7. Orchestrator Agent
-Coordinates multi-agent workflows:
-- Project planning and task breakdown
-- Agent coordination and workflow management
-- Progress tracking and reporting
-- Complex task orchestration
-- **Handover Documents**: Passes structured context between agents
-- **Learning System**: Saves and reapplies lessons from past work
+| Agent | Purpose | Skills |
+|---|---|---|
+| `@requirements` | BEADS+ spec gathering, user stories, constitution | `speckit-constitution`, `speckit-specify` |
+| `@architecture` | System design, ADRs, component decisions | `speckit-plan` |
+| `@security` | OWASP Top 10, vulnerability scanning | — |
+| `@development` | Code implementation and refactoring | `speckit-implement` |
+| `@testing` | Test generation and coverage | — |
+| `@quality` | Code review and maintainability | `speckit-checklist`, `speckit-analyze` |
+| `@orchestrator` | Multi-agent coordination, BEADS+ workflow | `speckit-tasks`, `speckit-analyze`, `speckit-checklist` |
 
 ## Agent Memory & Handover System
 
-The framework includes a sophisticated **file-based memory system** that enables agents to:
-- 📝 **Pass Context**: Handover documents maintain continuity between agents
-- 🧠 **Learn from Mistakes**: Automatically save quality issues and test failures
-- 🔄 **Reapply Knowledge**: Relevant learnings loaded before each task
-- 📊 **Track Success**: Monitor which patterns work and which don't
+Agents maintain continuity across sessions using a file-based memory system under `.specify/memory/`:
 
-### Handover Documents
+- **Handover documents** — structured context passed between agents (files changed, decisions, issues, action items)
+- **Learning system** — agents save quality issues and test failures and reload relevant learnings before new tasks
+- Stored as both JSON (machine-readable) and Markdown (human-readable)
 
-During iterative development, agents pass structured handover documents at each step:
+## CLI Reference
 
-```
-Development Agent
-    ↓ (Handover: files changed, decisions, implementation summary)
-Quality Agent
-    ↓ (Handover: quality issues, security concerns, action items)
-Testing Agent
-    ↓ (Handover: test results, feedback, prioritized fixes)
-Development Agent (next iteration)
-```
-
-**Handover Content**:
-- Files changed and implementation summary
-- Key decisions and rationale
-- Quality issues discovered
-- Test failures and specific reasons
-- Action items (high/medium/low priority)
-- Context from previous iterations
-- Learnings applied and lessons discovered
-
-**Storage**: `.specify/memory/handovers/` (JSON + Markdown)
-
-### Learning System
-
-Agents automatically capture and reuse knowledge:
-
-**Learning Sources**:
-1. ✅ **Successful Patterns**: Saved when tasks complete successfully
-2. ⚠️ **Quality Issues**: Saved when critical/high severity issues found
-3. ❌ **Test Failures**: Saved with root cause and resolution
-
-**Learning Categories**:
-- Security issues and fixes
-- Performance optimizations
-- Quality improvements
-- Testing strategies
-- Architecture decisions
-- General best practices
-
-**Learning Reapplication**:
-```typescript
-// Before starting each task
-const relevantLearnings = await memory.getRelevantLearnings({
-  categories: ['security', 'testing'],
-  tags: ['authentication', 'validation'],
-  files: ['src/auth/*']
-});
-
-// Learnings automatically provided to agents
-// Agents reference past mistakes to avoid repetition
-// Success rate tracked for each learning
+```bash
+acli init                    # Initialize framework in current project
+acli install <name>          # Install a pre-built agent
+acli install orchestrator    # Install all 7 agents + BEADS+ prompts + skills
+acli list agents             # List installed agents
+acli list skills             # List installed skills
+acli remove <name>           # Remove an agent
+acli update [name]           # Update agents to latest version
+acli config                  # Configure framework settings
 ```
 
-**Storage**: `.specify/memory/learnings/` (JSON + Markdown)
-
-**Tracking**:
-- Times applied
-- Success rate
-- Related learnings
-- Code examples (before/after)
-
-### Example Learning Flow
-
-```
-1. Development implements feature
-2. Quality discovers security issue
-   → Learning saved: "SQL Injection in user input"
-   → Category: security, Severity: critical
-   → Resolution: Use parameterized queries
-   → Code example included
-
-3. Next similar task starts
-   → Learning loaded: "SQL Injection prevention"
-   → Development agent references this learning
-   → Implements with parameterized queries from start
-   → Quality passes on first iteration
-   
-4. Success! Learning success rate increased
-```
-
-📖 **Templates**:
-- [handover.template.md](./templates/beads/handover.template.md) - Handover document structure
-- [learning.template.md](./templates/beads/learning.template.md) - Learning entry format
-
-📚 **Complete Guide**: [MEMORY_SYSTEM.md](./MEMORY_SYSTEM.md) - Comprehensive memory & handover documentation
-
-## Project Structure
+## Project Structure After Init
 
 ```
 your-project/
 ├── .github/
 │   ├── agents/
-│   │   ├── requirements/
-│   │   │   └── .agent.md
-│   │   ├── architecture/
-│   │   │   └── .agent.md
-│   │   ├── security/
-│   │   │   └── .agent.md
-│   │   ├── development/
-│   │   │   └── .agent.md
-│   │   ├── testing/
-│   │   │   └── .agent.md
-│   │   ├── quality/
-│   │   │   └── .agent.md
-│   │   └── orchestrator/
-│   │       └── .agent.md
-│   └── skills/
-│       └── (custom skills)
-├── .specify/
-│   ├── memory/
-│   │   ├── handovers/      # Agent handover documents
-│   │   │   ├── index.json  # Handover index
-│   │   │   ├── H-*.json    # Handover data
-│   │   │   └── H-*.md      # Human-readable handovers
-│   │   └── learnings/      # Agent learning system
-│   │       ├── index.json  # Learning index
-│   │       ├── L-*.json    # Learning data
-│   │       └── L-*.md      # Human-readable learnings
-│   ├── constitution.md
-│   ├── features/
-│   └── workflows/
-├── .vscode/
-│   └── extensions.json
-└── .agent-framework.json
+│   │   ├── orchestrator.agent.md
+│   │   ├── requirements.agent.md
+│   │   ├── architecture.agent.md
+│   │   ├── security.agent.md
+│   │   ├── development.agent.md
+│   │   ├── testing.agent.md
+│   │   └── quality.agent.md
+│   ├── skills/
+│   │   ├── speckit-constitution.skill.md
+│   │   ├── speckit-specify.skill.md
+│   │   ├── speckit-plan.skill.md
+│   │   ├── speckit-tasks.skill.md
+│   │   ├── speckit-analyze.skill.md
+│   │   ├── speckit-checklist.skill.md
+│   │   └── speckit-implement.skill.md
+│   └── prompts/
+│       ├── beads.constitution.prompt.md
+│       ├── beads.specify.prompt.md
+│       ├── beads.plan.prompt.md
+│       ├── beads.tasks.prompt.md
+│       ├── beads.analyze.prompt.md
+│       └── beads.implement.prompt.md
+└── .specify/
+    ├── memory/
+    │   ├── constitution.md
+    │   └── handover.md
+    └── specs/
+        ├── spec.md
+        ├── plan.md
+        └── tasks.md
 ```
 
-## CLI Commands
+## VS Code Agent Compatibility
 
-| Command | Description |
-|---------|-------------|
-| `acli init` | Initialize agent framework in current project |
-| `acli list agents` | List all available agents |
-| `acli list skills` | List all available skills |
-| `acli install <agent>` | Install a pre-built agent |
-| `acli create agent` | Create a custom agent |
-| `acli create skill` | Create a custom skill |
-| `acli update <agent>` | Update an agent to latest version |
-| `acli remove <agent>` | Remove an agent from project |
-| `acli config` | Configure framework settings |
+All agents use `target: vscode` in their YAML frontmatter, which enables the full VS Code attribute set:
+- `agents` — agents the orchestrator can invoke
+- `argument-hint` — usage hint shown in Copilot Chat
+- `handoffs` — agents to hand off to after completing
+- `user-invocable: true` — invocable directly by the user
 
-## Configuration
-
-Create `.agent-framework.json` in your project root:
-
-```json
-{
-  "agentsDir": ".github/agents",
-  "skillsDir": ".github/skills",
-  "defaultAgents": ["requirements", "architecture", "security", "development", "testing", "quality", "orchestrator"],
-  "customSettings": {
-    "github": {
-      "token": "your-token",
-      "repo": "owner/repo"
-    }
-  }
-}
-```
-
-## Development
-
-```bash
-# Clone the repository
-git clone https://github.com/ipranjal/agent-framework.git
-cd agent-framework
-
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Run in development mode
-npm run dev
-```
+For GitHub Copilot Extensions, set `platform: 'github-copilot'` in your agent config to use `infer`, `mcp-servers`, `tools`, `github` attributes instead.
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT — see [LICENSE](./LICENSE)

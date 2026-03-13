@@ -3,13 +3,11 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { initCommand } from './commands/init';
-import { createCommand } from './commands/create';
 import { listCommand } from './commands/list';
 import { installCommand } from './commands/install';
 import { removeCommand } from './commands/remove';
 import { updateCommand } from './commands/update';
 import { configCommand } from './commands/config';
-import { beadsCommand } from './commands/beads';
 
 const program = new Command();
 
@@ -25,15 +23,6 @@ program
   .option('-d, --dir <directory>', 'Target directory', '.')
   .option('-a, --agents <agents...>', 'Pre-install specific agents')
   .action(initCommand);
-
-// Create command
-program
-  .command('create <type>')
-  .description('Create a new agent or skill (type: agent|skill)')
-  .option('-n, --name <name>', 'Name of the agent or skill')
-  .option('-d, --description <description>', 'Description')
-  .option('-t, --template <template>', 'Use a specific template')
-  .action(createCommand);
 
 // List command
 program
@@ -70,16 +59,6 @@ program
   .option('-g, --get <key>', 'Get a configuration value')
   .option('-l, --list', 'List all configuration')
   .action(configCommand);
-
-// BEADS+ SpecKit commands
-program
-  .command('beads <phase>')
-  .description('Execute BEADS+ SpecKit workflow phases')
-  .option('-f, --featureId <id>', 'Feature ID')
-  .option('-p, --priority <priority>', 'Priority level (P0, P1, P2, P3)')
-  .option('-o, --output <path>', 'Output directory')
-  .option('--force', 'Force overwrite existing files')
-  .action(beadsCommand);
 
 // Parse arguments
 program.parse(process.argv);

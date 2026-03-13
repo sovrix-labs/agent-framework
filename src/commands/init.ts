@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import boxen from 'boxen';
 import { AgentManager } from '../core/AgentManager';
+import { installBeadsPrompts } from './install';
 
 interface InitOptions {
   dir: string;
@@ -65,6 +66,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
     const skillsReadme = path.join(skillsDir, 'README.md');
     await fs.writeFile(skillsReadme, `# GitHub Copilot Skills\n\nThis directory contains reusable skills for GitHub Copilot agents.\n\n## Create Custom Skills\n\n\`\`\`bash\nacli create skill\n\`\`\`\n`, 'utf-8');
 
+    // Install BEADS+ slash command prompts into .github/prompts/
+    await installBeadsPrompts(projectRoot);
+
+    // Scaffold .specify directory structure
+    await fs.ensureDir(path.join(projectRoot, '.specify', 'memory'));
+    await fs.ensureDir(path.join(projectRoot, '.specify', 'specs'));
+
     spinner.succeed('Agent framework initialized successfully!');
 
     // Install default agents if specified
@@ -89,10 +97,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
     const message = boxen(
       chalk.green.bold('✓ Agent Framework Initialized!\n\n') +
       chalk.white('Next steps:\n') +
-      chalk.cyan('  1. acli list agents') + chalk.gray(' - View available agents\n') +
-      chalk.cyan('  2. acli install requirements') + chalk.gray(' - Install an agent\n') +
-      chalk.cyan('  3. acli create agent') + chalk.gray(' - Create custom agent\n\n') +
-      chalk.white('Documentation: ') + chalk.blue('https://github.com/agent-framework/docs'),
+      chalk.cyan('  1. acli install orchestrator') + chalk.gray(' - Install all agents\n') +
+      chalk.cyan('  2. /beads.constitution') + chalk.gray(' - Create your project constitution (in Copilot Chat)\n') +
+      chalk.cyan('  3. /beads.specify') + chalk.gray(' - Define what you want to build\n') +
+      chalk.cyan('  4. /beads.implement') + chalk.gray(' - Start iterative development\n\n') +
+      chalk.white('BEADS+ commands installed in: ') + chalk.blue('.github/prompts/\n') +
+      chalk.white('Speckit skills installed in:  ') + chalk.blue('.github/skills/\n') +
+      chalk.white('Documentation: ') + chalk.blue('https://github.com/ipranjal/agent-framework'),
       {
         padding: 1,
         margin: 1,

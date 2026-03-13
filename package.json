@@ -1,6 +1,6 @@
 {
   "name": "agent-framework-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI tool framework for building VS Code + Copilot agents and skills with BEADS+ SpecKit workflow",
   "main": "dist/cli.js",
   "bin": {
