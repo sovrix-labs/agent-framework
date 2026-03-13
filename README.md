@@ -130,15 +130,15 @@ Progress is always saved to `.specify/memory/handover.md` so you can resume with
 
 All agents install as `{name}.agent.md` directly in `.github/agents/` with `target: vscode` for full VS Code attribute support.
 
-| Agent | Purpose | Skills |
-|---|---|---|
-| `@requirements` | BEADS+ spec gathering, user stories, constitution | `speckit-constitution`, `speckit-specify` |
-| `@architecture` | System design, ADRs, component decisions | `speckit-plan` |
-| `@security` | OWASP Top 10, vulnerability scanning | — |
-| `@development` | Code implementation and refactoring | `speckit-implement` |
-| `@testing` | Test generation and coverage | — |
-| `@quality` | Code review and maintainability | `speckit-checklist`, `speckit-analyze` |
-| `@orchestrator` | Multi-agent coordination, BEADS+ workflow | `speckit-tasks`, `speckit-analyze`, `speckit-checklist` |
+| Agent | Purpose | 
+|---|---|
+| `@requirements` | BEADS+ spec gathering, user stories, constitution |
+| `@architecture` | System design, ADRs, component decisions |
+| `@security` | OWASP Top 10, vulnerability scanning |
+| `@development` | Code implementation and refactoring |
+| `@testing` | Test generation and coverage |
+| `@quality` | Code review and maintainability |
+| `@orchestrator` | Multi-agent coordination, BEADS+ workflow | 
 
 ## Agent Memory & Handover System
 
