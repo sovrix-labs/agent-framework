@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.10] - 2026-03-14
+
+### Changed
+- **Language-agnostic agent instructions** — all 6 specialist agents (Security, Architecture, Requirements, Quality, Testing, Development) now defer all language-specific configuration (linting rules, test commands, coverage targets, scanning tools, code patterns) to per-project `.specify/memory/quality-standards.md` and `.specify/memory/reference-architecture.md` rather than embedding hardcoded assumptions; agents fail fast and ask for these documents if they are missing
+- **Security Agent** — removed hardcoded JavaScript/Python scanning commands and helmet.js configuration; agent now reads security scanning tools and header middleware from `quality-standards.md`
+- **Architecture Agent** — replaced 4 TypeScript design pattern implementations with concise prose descriptions; pattern selection deferred to project architecture documents
+- **Requirements Agent** — removed BeadsWorkflow TypeScript API call examples and workflow step code blocks; process guidance now expressed as plain language steps
+- **Quality Agent** — removed 6 before/after JavaScript/TypeScript code pair examples and hardcoded tool commands; agent now reads linting and quality tooling from `quality-standards.md`
+- **Testing Agent** — removed full Jest/Supertest/Playwright example test implementations; test framework and conventions now loaded from `quality-standards.md` and `testing-plan.md`
+- **Development Agent** — removed Express/React/Prisma boilerplate code generation examples; implementation patterns deferred to `reference-architecture.md`
+
+### Performance
+- **~1,360 lines removed** from embedded agent instructions across all 6 agents, reducing per-invocation token consumption by approximately 6,000–7,000 tokens per full pipeline run
+- Previous release (`1.0.9`) had already removed ~996 lines of example interactions; combined total across both releases: **~2,356 lines removed**
+
 ## [1.0.9] - 2026-03-14
 
 ### Added

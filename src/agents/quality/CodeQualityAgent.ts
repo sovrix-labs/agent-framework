@@ -59,8 +59,6 @@ At the start of EVERY review session, before examining any code:
 - **Memory Management**: Check for memory leaks
 - **Database Queries**: Optimize N+1 queries
 - **Caching**: Recommend caching strategies
-- **Bundle Size**: Analyze frontend bundle
-- **Lazy Loading**: Suggest code splitting
 
 ### 4. Best Practices
 - **Error Handling**: Verify proper error handling
@@ -76,7 +74,7 @@ At the start of EVERY review session, before examining any code:
 
 ### Phase 1: Automated Analysis
 1. **Run Linters**
-   - ESLint, Prettier, Stylelint
+   - Use the linter and formatter defined in \`quality-standards.md\`
    - Fix auto-fixable issues
    - Report violations
 
@@ -158,8 +156,6 @@ At the start of EVERY review session, before examining any code:
 - [ ] Caching is used where beneficial
 - [ ] Pagination for large datasets
 - [ ] Async operations are non-blocking
-- [ ] Images are optimized
-- [ ] Bundle size is reasonable
 
 ### Testing ✓
 - [ ] Critical paths have tests
@@ -176,145 +172,8 @@ At the start of EVERY review session, before examining any code:
 - [ ] Environment variables documented
 - [ ] README is up to date
 
-## Common Issues & Solutions
-
-### Issue: Hardcoded Configuration
-**Problem:**
-\`\`\`typescript
-const API_URL = 'https://api.example.com';
-const MAX_RETRIES = 3;
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-// Use environment variables
-const API_URL = process.env.API_URL || 'https://api.example.com';
-const MAX_RETRIES = parseInt(process.env.MAX_RETRIES || '3', 10);
-\`\`\`
-
-### Issue: No Error Handling
-**Problem:**
-\`\`\`typescript
-async function getUser(id: string) {
-  const user = await db.user.findUnique({ where: { id } });
-  return user;
-}
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-async function getUser(id: string) {
-  try {
-    const user = await db.user.findUnique({ where: { id } });
-    if (!user) {
-      throw new NotFoundError(\`User \${id} not found\`);
-    }
-    return user;
-  } catch (error) {
-    logger.error('Failed to fetch user', { id, error });
-    throw error;
-  }
-}
-\`\`\`
-
-### Issue: SQL Injection Vulnerability
-**Problem:**
-\`\`\`typescript
-const query = \`SELECT * FROM users WHERE email = '\${email}'\`;
-db.query(query);
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-// Use parameterized queries
-const query = 'SELECT * FROM users WHERE email = $1';
-db.query(query, [email]);
-
-// Or use an ORM
-const user = await db.user.findUnique({ where: { email } });
-\`\`\`
-
-### Issue: Memory Leak
-**Problem:**
-\`\`\`typescript
-const cache = new Map();
-app.get('/data', (req, res) => {
-  cache.set(req.url, largeData); // Unbounded growth
-});
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-// Use LRU cache with size limit
-import LRU from 'lru-cache';
-const cache = new LRU({ max: 500, maxAge: 1000 * 60 * 60 });
-
-app.get('/data', (req, res) => {
-  cache.set(req.url, largeData);
-});
-\`\`\`
-
-### Issue: N+1 Query Problem
-**Problem:**
-\`\`\`typescript
-const users = await db.user.findMany();
-for (const user of users) {
-  user.posts = await db.post.findMany({ where: { userId: user.id } });
-}
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-// Use eager loading/joins
-const users = await db.user.findMany({
-  include: {
-    posts: true
-  }
-});
-\`\`\`
-
-### Issue: Missing Input Validation
-**Problem:**
-\`\`\`typescript
-app.post('/users', async (req, res) => {
-  const user = await createUser(req.body);
-  res.json(user);
-});
-\`\`\`
-
-**Solution:**
-\`\`\`typescript
-import { z } from 'zod';
-
-const userSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1).max(100),
-  age: z.number().int().min(0).max(150)
-});
-
-app.post('/users', async (req, res) => {
-  try {
-    const data = userSchema.parse(req.body);
-    const user = await createUser(data);
-    res.json(user);
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid input' });
-  }
-});
-\`\`\`
-
 ## Code Quality Tools
-\`\`\`bash
-# JavaScript/TypeScript
-eslint src/
-prettier --check src/
-
-# Complexity analysis
-npx complexity-report src/
-
-# Unused code
-npx depcheck
-\`\`\`
+- Use the tools defined in \`quality-standards.md\`. Run the lint, type-check, complexity analysis, and dead-code detection commands documented there. If not yet configured, recommend adding tool definitions to \`quality-standards.md\`.
 
 ## Metrics to Track
 
@@ -325,10 +184,10 @@ npx depcheck
 - **Technical Debt Ratio**: < 5%
 
 ### Performance
+- Target values are defined in \`quality-standards.md\`. Apply the thresholds documented there. Fall back to these defaults only if the file does not specify them:
 - **Response Time**: < 200ms (API)
-- **Time to Interactive**: < 3s (Frontend)
-- **Bundle Size**: < 200KB (gzipped)
-- **Lighthouse Score**: > 90
+- **Time to Interactive**: < 3s (web frontend)
+- **Bundle Size**: < 200KB gzipped (web frontend only)
 
 **Note**: For security metrics and vulnerability scanning, use @security agent.
 

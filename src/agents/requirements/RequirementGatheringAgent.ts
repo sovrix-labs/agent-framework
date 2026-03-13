@@ -89,32 +89,6 @@ This agent implements the **CONSTITUTION**, **SPECIFY**, and **CLARIFY** phases 
 
 **Template**: Use \`templates/beads/constitution.template.md\`
 
-**Example**:
-\`\`\`typescript
-import { BeadsWorkflow } from '../core/BeadsWorkflow';
-
-// Create project constitution
-const constitution = BeadsWorkflow.createConstitution({
-  projectName: "E-commerce Platform",
-  principles: [
-    "API-first: All functionality accessible via API",
-    "Mobile-first: Design for mobile, scale up to desktop",
-    "Security by design: Security at every layer"
-  ],
-  techConstraints: {
-    language: "TypeScript",
-    framework: "Must support progressive enhancement",
-    infrastructure: "Cloud-native, containerized"
-  },
-  qualityStandards: {
-    testCoverage: 90,
-    performanceTargets: "LCP < 2.5s, API p95 < 200ms",
-    securityRequirements: "OWASP Top 10 mitigated"
-  },
-  workflowRules: ["All features follow BEADS+ workflow", "100% tests pass before merge"]
-});
-\`\`\`
-
 ### 2. Specification Phase (SPECIFY)
 
 **Purpose**: Create technology-agnostic feature specifications focused on WHAT/WHY.
@@ -139,21 +113,7 @@ const constitution = BeadsWorkflow.createConstitution({
 
 **Template**: Use \`templates/beads/spec.template.md\`
 
-**Technology-Agnostic Validation**:
-\`\`\`typescript
-import { BeadsWorkflow } from '../core/BeadsWorkflow';
-
-// Validate spec is technology-agnostic
-const validation = BeadsWorkflow.validateSpecification(specDocument);
-
-if (!validation.isValid) {
-  console.error("[FAIL] Spec contains technology-specific terms:");
-  validation.violations.forEach(v => {
-    console.log(\`- Line \${v.line}: "\${v.term}" (\${v.category})\`);
-  });
-  console.log("\\n💡 Remove framework/library/tool names. Focus on WHAT/WHY.");
-}
-\`\`\`
+**Technology-Agnostic Validation**: Run \`BeadsWorkflow.validateSpecification()\` to detect forbidden technology terms before finalising the spec.
 
 **Forbidden Terms** (examples):
 - [FAIL] React, Vue, Angular, Svelte
@@ -169,30 +129,6 @@ if (!validation.isValid) {
 - [DONE] Authentication, authorization, encryption
 - [DONE] User, admin, system, service
 - [DONE] Real-time updates, asynchronous processing
-
-**Example User Story**:
-\`\`\`markdown
-## US1: User Registration (P0 - Must Have)
-
-**As a** new visitor to the platform  
-**I want** to create an account with my email and password  
-**So that** I can access personalized features and save my data securely
-
-### Acceptance Criteria
-- [ ] User can enter email address and password
-- [ ] System validates email format
-- [ ] System enforces password requirements (8+ characters, mix of types)
-- [ ] System checks if email already registered
-- [ ] User receives confirmation email
-- [ ] User can click email link to verify account
-- [ ] User automatically logged in after verification
-- [ ] Error messages are helpful and specific
-
-### Success Criteria
-- 90% of users complete registration within 2 minutes
-- < 5% bounce rate during registration
-- Email verification rate > 85%
-\`\`\`
 
 ### 3. Clarification Phase (CLARIFY)
 
@@ -215,110 +151,6 @@ if (!validation.isValid) {
 3. **Constraint Questions**: "Are there limitations on...?"
 4. **User Questions**: "How would users...?"
 5. **Edge Case Questions**: "What happens when...?"
-
-**Example Clarification**:
-\`\`\`markdown
-## Clarifying Questions
-
-### Q1: User Registration Scope
-"Should user registration support third-party authentication (e.g., social login), or only email/password?"
-
-**Answer**: Start with email/password for MVP (P0). Third-party auth is P1.
-
-### Q2: Email Verification Requirement
-"Is email verification required before users can access the system, or can they use features immediately with unverified accounts?"
-
-**Answer**: Users can log in immediately but see banner prompting verification. Some features (e.g., posting content) require verified account.
-
-### Q3: Password Reset
-"Should password reset be included in the user authentication feature, or tracked separately?"
-
-**Answer**: Include in same feature. It's part of complete auth experience.
-
-## Updates Applied to Spec
-- Added US2: Third-party authentication (P1)
-- Updated US1 acceptance criteria: user can access system before verification
-- Added US3: Password reset (P0)
-- Updated success criteria: 85% users verify within 24 hours
-\`\`\`
-
-## Workflow Process
-
-### Step 1: Check for Constitution
-\`\`\`bash
-# Check if constitution exists
-if [ ! -f ".specify/memory/constitution.md" ]; then
-  echo "⚠️  No constitution found. Creating one..."
-  # Create constitution using template and user input
-fi
-\`\`\`
-
-### Step 2: Generate Feature ID
-\`\`\`typescript
-import { BeadsWorkflow } from '../core/BeadsWorkflow';
-
-const featureId = BeadsWorkflow.generateFeatureId("User Authentication");
-// Returns: "001-user-authentication"
-\`\`\`
-
-### Step 3: Create Specification
-\`\`\`typescript
-const spec = BeadsWorkflow.createSpecification({
-  featureId: "001-user-authentication",
-  featureName: "User Authentication",
-  problemStatement: "Users need a secure way to create accounts...",
-  businessValue: {
-    userValue: "Users can securely save data and access personalized features",
-    businessImpact: "Enables user tracking, personalization, reduces fraud"
-  },
-  userStories: [
-    {
-      id: "US1",
-      title: "User Registration",
-      priority: "P0",
-      description: "As a new visitor, I want to create an account...",
-      acceptanceCriteria: ["User can enter email and password", ...],
-      estimatedEffort: "M"
-    }
-  ],
-  outOfScope: ["Password-less authentication", "Biometric authentication"],
-  assumptions: ["Users have email access", "SMS not required for MVP"]
-});
-
-// Validate technology-agnostic
-const validation = BeadsWorkflow.validateSpecification(spec);
-if (!validation.isValid) {
-  // Fix violations
-}
-
-// Write to file
-await writeFile(\`specs/\${featureId}/spec.md\`, spec);
-\`\`\`
-
-### Step 4: Clarify Phase
-\`\`\`markdown
-## Clarification Round 1
-
-Based on the specification, I have 3 clarifying questions:
-
-1. **Priority**: You mentioned "real-time notifications". Should this be P0 (MVP) or P1 (post-launch)?
-
-2. **Scope**: For "user profile", which fields are required vs. optional?
-
-3. **Behavior**: When a user is deleted, should their content be deleted or anonymized?
-
-Please answer these questions so I can update the specification.
-
-## After Answers
-
-[DONE] Updated \`specs/001-user-authentication/spec.md\`:
-- Moved real-time notifications to P1
-- Defined required profile fields: email, name (optional: avatar, bio)
-- Content is anonymized, not deleted
-
-Technology-agnostic validation: [DONE] PASS
-Specification complete and ready for PLAN phase.
-\`\`\`
 
 ## Document Templates
 

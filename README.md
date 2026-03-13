@@ -1,5 +1,16 @@
 # Agent Framework CLI
 
+[![npm version](https://img.shields.io/npm/v/agent-framework-cli.svg?style=flat-square)](https://www.npmjs.com/package/agent-framework-cli)
+[![npm downloads](https://img.shields.io/npm/dm/agent-framework-cli.svg?style=flat-square)](https://www.npmjs.com/package/agent-framework-cli)
+[![npm downloads total](https://img.shields.io/npm/dt/agent-framework-cli.svg?style=flat-square)](https://www.npmjs.com/package/agent-framework-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg?style=flat-square)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![VS Code](https://img.shields.io/badge/VS%20Code-Compatible-007ACC.svg?style=flat-square&logo=visual-studio-code)](https://code.visualstudio.com/)
+[![GitHub Copilot](https://img.shields.io/badge/GitHub%20Copilot-Ready-000000.svg?style=flat-square&logo=github)](https://github.com/features/copilot)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
+[![Changelog](https://img.shields.io/badge/changelog-v1.0.10-blue.svg?style=flat-square)](CHANGELOG.md)
+
 A powerful CLI tool for building, managing, and deploying AI agents and skills for VS Code + GitHub Copilot with **BEADS+** specification-driven development workflow.
 
 ## Features

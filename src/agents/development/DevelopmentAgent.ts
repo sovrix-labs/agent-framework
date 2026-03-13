@@ -57,7 +57,7 @@ Before every task, check and load these files if they exist:
 - **Error Handling**: Implement robust error handling
 - **Security**: Apply security best practices
 - **Documentation**: Write clear code comments and docs
-- **Type Safety**: Add TypeScript types or similar
+- **Type Safety**: Use the type system available in the project language as appropriate
 
 ## Development Workflow
 
@@ -98,7 +98,7 @@ Before every task, check and load these files if they exist:
 
 4. **Write Documentation**
    - Add code comments
-   - Write JSDoc/docstrings
+   - Write inline documentation in the format defined by the project language (see \`constitution.md\`)
    - Update README if needed
 
 ### Phase 3: Verification
@@ -116,154 +116,6 @@ Before every task, check and load these files if they exist:
    - Optimize if needed
    - Improve readability
    - Address any issues
-
-## Code Generation Patterns
-
-### REST API Endpoint
-\`\`\`typescript
-// Example: User CRUD endpoint
-import { Router, Request, Response } from 'express';
-import { UserService } from '../services/UserService';
-import { validateRequest } from '../middleware/validation';
-import { createUserSchema } from '../schemas/user';
-
-const router = Router();
-const userService = new UserService();
-
-// GET /api/users
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const users = await userService.findAll();
-    res.json({ data: users });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
-});
-
-// POST /api/users
-router.post('/', validateRequest(createUserSchema), async (req: Request, res: Response) => {
-  try {
-    const user = await userService.create(req.body);
-    res.status(201).json({ data: user });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create user' });
-  }
-});
-
-export default router;
-\`\`\`
-
-### React Component
-\`\`\`typescript
-// Example: Data table component
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Input } from '@/components/ui';
-import { useDebounce } from '@/hooks/useDebounce';
-
-interface DataTableProps<T> {
-  columns: Column<T>[];
-  fetchData: (params: FetchParams) => Promise<T[]>;
-  onRowClick?: (row: T) => void;
-}
-
-export function DataTable<T>({ columns, fetchData, onRowClick }: DataTableProps<T>) {
-  const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search, 300);
-
-  useEffect(() => {
-    loadData();
-  }, [debouncedSearch]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const result = await fetchData({ search: debouncedSearch });
-      setData(result);
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="data-table">
-      <Input
-        placeholder="Search..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Table
-        columns={columns}
-        data={data}
-        loading={loading}
-        onRowClick={onRowClick}
-      />
-    </div>
-  );
-}
-\`\`\`
-
-### Service Layer
-\`\`\`typescript
-// Example: Service class with error handling
-import { PrismaClient } from '@prisma/client';
-import { logger } from '../utils/logger';
-
-export class UserService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
-  async findAll() {
-    try {
-      return await this.prisma.user.findMany({
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          createdAt: true
-        }
-      });
-    } catch (error) {
-      logger.error('Failed to fetch users', error);
-      throw new Error('Database query failed');
-    }
-  }
-
-  async findById(id: string) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { id }
-      });
-      
-      if (!user) {
-        throw new Error('User not found');
-      }
-      
-      return user;
-    } catch (error) {
-      logger.error(\`Failed to fetch user \${id}\`, error);
-      throw error;
-    }
-  }
-
-  async create(data: CreateUserInput) {
-    try {
-      return await this.prisma.user.create({
-        data
-      });
-    } catch (error) {
-      logger.error('Failed to create user', error);
-      throw new Error('User creation failed');
-    }
-  }
-}
-\`\`\`
 
 ## Best Practices
 
@@ -291,8 +143,6 @@ export class UserService {
 ✓ Implement caching where appropriate
 ✓ Optimize database queries
 ✓ Use async/await properly
-✓ Avoid unnecessary re-renders (React)
-✓ Lazy load components and routes
 ✓ Monitor and profile performance
 
 ### Maintainability
