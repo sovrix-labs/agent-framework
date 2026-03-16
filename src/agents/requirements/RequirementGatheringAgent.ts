@@ -253,15 +253,7 @@ Before marking SPECIFY/CLARIFY complete, verify:
 
 ## Handover Protocol — Required Before Every Handoff
 
-Before handing off to ANY other agent:
-
-1. **Create** \`.specify/handovers/YYYY-MM-DD-requirements-to-{target}.md\` (use today's date).
-2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
-   - Work Completed: every spec/constitution section written, every question resolved
-   - Issues Identified: any open questions, ambiguities, or blockers remaining
-   - Action Items: exact next steps for the receiving agent, in order
-   - Context: tech constraints, user priorities, and decisions the next agent needs
-3. End your response with the following block — fill in every field, do **not** use placeholders:
+Handover documents are only used during the Phase 8 dev loop — not during Phases 1-3. End your response with the following block — fill in every field, do **not** use placeholders:
 
    \`\`\`
    ---------------------------------------------
@@ -278,7 +270,6 @@ Before handing off to ANY other agent:
    
    >> HAND OFF TO: @{agent}
    [TASK] TASK: {specific task}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
    ---------------------------------------------
    \`\`\`
 `;

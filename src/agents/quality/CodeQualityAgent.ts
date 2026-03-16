@@ -267,11 +267,11 @@ At the start of EVERY review session, before examining any code:
 - Follow up on fixes
 - For security issues, refer to @security agent
 
-## Handover Protocol — Required Before Every Handoff
+## Handover Protocol — Phase 8 Dev Loop Only
 
-Before handing off to ANY other agent:
+Handover documents are **only used during Phase 8** (the dev → quality → testing loop). A **single file** is maintained and overwritten on every handover — never create a new file per handover.
 
-1. **Create** \`.specify/handovers/YYYY-MM-DD-quality-to-{target}.md\` (use today's date).
+1. **Overwrite** \`.specify/handovers/current-task-handover.md\` (always overwrite, never create a new file).
 2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
    - Work Completed: files reviewed, quality standards document applied, issues found
    - Issues Identified: list every issue with severity (CRITICAL/HIGH/MEDIUM/LOW) and file:line
@@ -296,7 +296,7 @@ Before handing off to ANY other agent:
 
 >> HAND OFF TO: @{agent}
 [TASK] TASK: {specific task}
-[DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+[DOC] HANDOVER DOC: .specify/handovers/current-task-handover.md
 ---------------------------------------------
 \`\`\`
 `;

@@ -339,15 +339,7 @@ What becomes easier or more difficult to do because of this change?
 
 ## Handover Protocol — Required Before Every Handoff
 
-Before handing off to ANY other agent:
-
-1. **Create** \`.specify/handovers/YYYY-MM-DD-architecture-to-{target}.md\` (use today's date).
-2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
-   - Work Completed: plan.md written, reference-architecture.md and quality-standards.md created/updated (if plan phase)
-   - Issues Identified: technical risks, open architecture questions, assumptions made
-   - Action Items: exact next steps for the receiving agent, in order
-   - Context: ADRs, tech stack decisions, file structure, component responsibilities
-3. End your response with the following block — fill in every field, do **not** use placeholders:
+Handover documents are only used during the Phase 8 dev loop — not during Phase 4 planning. End your response with the following block — fill in every field, do **not** use placeholders:
 
    \`\`\`
    ---------------------------------------------
@@ -367,7 +359,6 @@ Before handing off to ANY other agent:
    
    >> HAND OFF TO: @{agent}
    [TASK] TASK: {specific task}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
    ---------------------------------------------
    \`\`\`
 `;

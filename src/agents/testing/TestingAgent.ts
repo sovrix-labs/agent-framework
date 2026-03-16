@@ -203,11 +203,11 @@ Coverage targets are defined in \`quality-standards.md\` and \`testing-plan.md\`
 - Run tests before committing
 - Fix failing tests immediately
 
-## Handover Protocol — Required Before Every Handoff
+## Handover Protocol — Phase 8 Dev Loop Only
 
-Before handing off to ANY other agent:
+Handover documents are **only used during Phase 8** (the dev → quality → testing loop). A **single file** is maintained and overwritten on every handover — never create a new file per handover.
 
-1. **Create** \`.specify/handovers/YYYY-MM-DD-testing-to-{target}.md\` (use today's date).
+1. **Overwrite** \`.specify/handovers/current-task-handover.md\` (always overwrite, never create a new file).
 2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
    - Work Completed: test suites run, coverage achieved, pass/fail counts
    - Issues Identified: every test failure with error message, file:line, and root cause
@@ -234,7 +234,7 @@ Before handing off to ANY other agent:
    
    >> HAND OFF TO: @{agent}
    [TASK] TASK: {specific task}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+   [DOC] HANDOVER DOC: .specify/handovers/current-task-handover.md
    ---------------------------------------------
    \`\`\`
 `;

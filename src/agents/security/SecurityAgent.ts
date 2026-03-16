@@ -272,15 +272,7 @@ Before every task, check and load these files if they exist:
 
 ## Handover Protocol — Required Before Every Handoff
 
-Before handing off to ANY other agent:
-
-1. **Create** \`.specify/handovers/YYYY-MM-DD-security-to-{target}.md\` (use today's date).
-2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
-   - Work Completed: checklist items completed, vulnerabilities found and categorised
-   - Issues Identified: every finding with OWASP category, severity, and file:line
-   - Action Items: mitigations required before implementation can proceed
-   - Context: threat model, attack surface, compliance requirements noted
-3. End your response with the following block — fill in every field, do **not** use placeholders:
+Handover documents are only used during the Phase 8 dev loop — not during Phase 5 checklist work. End your response with the following block — fill in every field, do **not** use placeholders:
 
    \`\`\`
    ---------------------------------------------
@@ -298,7 +290,7 @@ Before handing off to ANY other agent:
    
    >> HAND OFF TO: @{agent}
    [TASK] TASK: {specific task}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
+
    ---------------------------------------------
    \`\`\`
 `;

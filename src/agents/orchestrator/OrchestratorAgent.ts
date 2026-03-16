@@ -81,7 +81,7 @@ When an agent returns a handover or completion signal:
 | @security + @quality finished checklists | security.md, accessibility.md, performance.md exist | → @development (Phase 6: tasks) | → missing agent (complete checklist) |
 | @development finished tasks | tasks.md formatted as \`[T###] [P] [US#] Description\` | → @orchestrator (Phase 7: analyze) | → @development (fix task format) |
 | @orchestrator analyze complete | No spec→task gaps, no plan↔spec conflicts | → @development (Phase 8: first P0 task) | → responsible agent (fix gaps) |
-| @development finished task | Handover doc exists | → @quality (Phase 8b: review) | → @development (create handover) |
+| @development finished task | current-task-handover.md updated | → @quality (Phase 8b: review) | → @development (update handover) |
 | @quality finished review | Handover doc with review results | → @testing (Phase 8c: run tests) | → @quality (complete review) |
 | @testing finished tests + no failures | 100% tests pass | → @orchestrator (next task or user story tests) | → @development (fix test failures — loop) |
 
@@ -91,7 +91,7 @@ During Phase 8 (Implement), automatically route through the Dev → Quality → 
 
 \`\`\`
 INCOMING: @development task complete
-  └─ GATE: handover doc created?  No → route back to @development
+  └─ GATE: current-task-handover.md updated?  No → route back to @development
   └─ Yes → route to @quality (review)
 
 INCOMING: @quality review complete
@@ -310,7 +310,6 @@ PASSES FEEDBACK FROM:
 
 >> HAND OFF TO: @requirements
 [TASK] TASK: Create the feature specification using /acli.beads.specify
-[DOC] HANDOVER DOC: .specify/handovers/2026-03-14-orchestrator-to-requirements.md
 ----------------------------------------------------------
 \`\`\`
 
@@ -371,7 +370,6 @@ If a quality gate **fails**, hand back to the responsible agent with specific fe
 [TASK] TASK: Revise spec.md — remove technology-specific terms:
          Line 14: "React hooks" → describe the UI behavior instead
          Line 31: "PostgreSQL" → describe the data persistence need instead
-[DOC] HANDOVER DOC: .specify/handovers/2026-03-14-orchestrator-to-requirements.md
 ----------------------------------------------------------
 \`\`\`
 
@@ -626,7 +624,7 @@ ORCHESTRATOR (manages loop + handovers + memory)
                   +--► Repeat cycle with context
 \`\`\`
 
-**Handover Flow** (stored in \`.specify/memory/handovers/\`):
+**Handover Flow** (single file: \`.specify/handovers/current-task-handover.md\` — overwritten on each dev loop handoff):
 1. **Development → Quality**: Implementation complete, code ready for review
 2. **Quality → Testing**: Review complete, issues documented
 3. **Testing → Development**: Test results with feedback for next iteration
@@ -706,7 +704,7 @@ interface Handover {
 ## Notes
 - This agent orchestrates the complete BEADS+ workflow (8 phases)
 - **Iterative development loop**: Dev → Quality → Test → Feedback → Repeat (Phase 8)
-- **Handover documents**: Agents pass structured context to each other (stored in \`.specify/memory/handovers/\`)
+- **Handover documents**: Single file \`.specify/handovers/current-task-handover.md\` — overwritten on each Phase 8 dev loop handoff (never date-stamped)
 - **Learning system**: Mistakes and resolutions saved as learnings (stored in \`.specify/memory/learnings/\`)
 - **Context continuity**: Each agent receives handover with full context from previous agent
 - Quality gates enforced at every phase
@@ -732,13 +730,9 @@ interface Handover {
 
 Before handing off to ANY agent:
 
-1. **Create** \`.specify/handovers/YYYY-MM-DD-orchestrator-to-{target}.md\` (use today's date).
-2. **Fill in ALL sections** from \`templates/beads/handover.template.md\`:
-   - Work Completed: which phases validated, quality gates passed, analysis performed
-   - Issues Identified: any quality gate failures, conflicts between documents
-   - Action Items: exact phase task for the receiving agent, including which slash command to use
-   - Context: constitution, reference architecture, and quality standards document paths; current workflow state
-3. End your response with the following block — fill in every field, do **not** use placeholders:
+For **Phase 8** (dev loop) handoffs, the receiving agent will overwrite \`.specify/handovers/current-task-handover.md\`. For all other phases (1-7), no handover document is created.
+
+End your response with the following block — fill in every field, do **not** use placeholders:
 
    \`\`\`
    ---------------------------------------------
@@ -755,7 +749,6 @@ Before handing off to ANY agent:
    
    >> HAND OFF TO: @{agent}
    [TASK] TASK: {specific task and slash command}
-   [DOC] HANDOVER DOC: .specify/handovers/{filename}.md
    ---------------------------------------------
    \`\`\`
 `;
