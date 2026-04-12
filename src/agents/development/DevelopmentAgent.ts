@@ -33,7 +33,7 @@ export class DevelopmentAgent extends Agent {
 
 ## Purpose
 
-Accelerate development with intelligent code generation, refactoring assistance, and implementation of features based on specifications provided by the architecture agent.
+Accelerate development with intelligent code generation, refactoring assistance, and implementation of features based on specifications provided by the architect agent.
 
 ## Project Context -- Load Before Every Task
 
