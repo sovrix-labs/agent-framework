@@ -25,7 +25,7 @@ export async function listCommand(type: string, options: ListOptions): Promise<v
 }
 
 async function listAgents(projectRoot: string, configPath: string, options: ListOptions): Promise<void> {
-  console.log(chalk.bold.cyan('\n📦 Available Agents\n'));
+  console.log(chalk.bold.cyan('\nAvailable Agents\n'));
 
   // List pre-built agents
   const prebuiltAgents = getPrebuiltAgents();
@@ -46,7 +46,7 @@ async function listAgents(projectRoot: string, configPath: string, options: List
   for (const [name, agent] of Object.entries(prebuiltAgents)) {
     const metadata = agent.getMetadata();
     const isInstalled = installedAgents.has(name);
-    const status = isInstalled ? chalk.green('✓ installed') : chalk.gray('not installed');
+    const status = isInstalled ? chalk.green('installed') : chalk.gray('not installed');
     
     if (!options.installed || isInstalled) {
       console.log(chalk.cyan(`\n  ${metadata.displayName}`));
@@ -75,7 +75,7 @@ async function listAgents(projectRoot: string, configPath: string, options: List
         console.log(chalk.cyan(`\n  ${agent.displayName}`));
         console.log(`    Name: ${chalk.yellow(agent.name)}`);
         console.log(`    Description: ${agent.description}`);
-        console.log(`    Status: ${chalk.green('✓ installed')}`);
+        console.log(`    Status: ${chalk.green('installed')}`);
         console.log(`    Version: ${agent.version}`);
       }
     }
@@ -87,7 +87,7 @@ async function listAgents(projectRoot: string, configPath: string, options: List
 }
 
 async function listSkills(projectRoot: string, configPath: string, options: ListOptions): Promise<void> {
-  console.log(chalk.bold.cyan('\n📚 Available Skills\n'));
+  console.log(chalk.bold.cyan('\nAvailable Skills\n'));
 
   if (!(await fs.pathExists(configPath))) {
     console.log(chalk.yellow('Agent framework not initialized. Run "acli init" first.'));
@@ -102,21 +102,7 @@ async function listSkills(projectRoot: string, configPath: string, options: List
     return;
   }
 
-  const entries = await fs.readdir(skillsDir, { withFileTypes: true });
-  const skills = [];
-
-  for (const entry of entries) {
-    if (entry.isFile() && entry.name.endsWith('.skill.md')) {
-      const skillFile = path.join(skillsDir, entry.name);
-      const content = await fs.readFile(skillFile, 'utf-8');
-      const metadata = parseSkillMetadata(content);
-      if (metadata) {
-        // Extract name from filename (remove .skill.md)
-        const name = entry.name.replace('.skill.md', '');
-        skills.push({ ...metadata, name });
-      }
-    }
-  }
+  const skills = await scanSkillsDir(skillsDir);
 
   if (skills.length === 0) {
     console.log(chalk.yellow('No skills found.'));
@@ -138,6 +124,28 @@ async function listSkills(projectRoot: string, configPath: string, options: List
 
   console.log(chalk.gray('\n' + '─'.repeat(50)));
   console.log(chalk.gray('Create a new skill: ') + chalk.cyan('acli create skill\n'));
+}
+
+async function scanSkillsDir(dir: string, prefix = ''): Promise<any[]> {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const skills: any[] = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const subSkills = await scanSkillsDir(fullPath, `${prefix}${entry.name}/`);
+      skills.push(...subSkills);
+    } else if (entry.isFile() && entry.name.endsWith('.skill.md')) {
+      const content = await fs.readFile(fullPath, 'utf-8');
+      const metadata = parseSkillMetadata(content);
+      if (metadata) {
+        const name = entry.name.replace('.skill.md', '');
+        skills.push({ ...metadata, name, group: prefix || undefined });
+      }
+    }
+  }
+
+  return skills;
 }
 
 function parseSkillMetadata(content: string): any {

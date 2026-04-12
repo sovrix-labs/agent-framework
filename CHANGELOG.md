@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2025-01-20
+
+### Breaking Changes
+- **Command namespace simplified** — all `/acli.beads.xxx` commands renamed to `/acli.xxx` (e.g., `/acli.beads.constitution` → `/acli.constitution`)
+- **Agents consolidated from 7 to 5** — `requirements` + `architecture` merged into `architect`; `quality` + `testing` merged into `qa`
+- **Removed core modules** — `AgentMemory.ts`, `BeadsWorkflow.ts`, `LearningTemplates.ts` removed; memory management delegated to beads CLI (`bd`)
+- **Removed redundant templates/skills** — 5 speckit skills and 6 beads templates removed; replaced by spec-kit bundled templates and beads workflow
+- **Python mandatory** — spec-kit requires Python; `acli setup` exits with error if Python is not installed
+- **Go dependency removed** — beads installs via brew or npm only; Go is no longer required
+- **Enterprise tone** — all agent instructions and CLI output use formal professional language; emojis removed throughout
+- **Config schema v2** — `.agent-framework.json` now includes `dependencies`, `enterprise`, and `promptsDir` fields
+
+### Added
+- **Setup command** — `acli setup` checks and installs all dependencies (spec-kit, beads, plugins) separately from `acli init`
+- **Superpowers integration** — `acli init` installs 13 superpowers skills (TDD, systematic debugging, brainstorming, code review, git worktrees, etc.) as `.skill.md` files in `.github/skills/superpowers/`
+- **Beads integration** — `acli init` runs `bd init` if beads CLI is available; graceful degradation with warning if not installed
+- **Spec-kit plugins** — `acli setup` installs brownfield, fleet, and superpowers-bridge plugins via `specify plugin install`
+- **Spec-kit directory structure** — `acli init` creates `.specify/templates/` and `.specify/specs/` directories for specification-driven development
+- **8 new slash commands** — `/acli.run` (fleet lifecycle), `/acli.clarify`, `/acli.checklist`, `/acli.debug`, `/acli.critique`, `/acli.respond`, `/acli.finish`, `/acli.onboard`
+- **Windows compatibility** — `where` vs `which` detection, npm beads fallback (no brew on Windows), pip without `--user` on Windows
+- **Auto-install all agents** — `acli init` now installs all 5 built-in agents automatically
+
+### Changed
+- **5 agents total** — orchestrator, architect (requirements + architecture), security, development, qa (code review + testing)
+- **Architect Agent** — combines spec-kit SDD phases (constitution, specify, clarify) with architecture design (patterns, ADRs, technical decisions)
+- **QA Agent** — combines code quality review workflow with test generation and execution
+- **Orchestrator Agent** — fleet-style 10-phase lifecycle with 3 mandatory human gates; agents array updated to `['architect', 'security', 'development', 'qa']`
+- **Development Agent** — single qa handoff replaces separate quality and testing handoffs
+- **Security Agent** — handoff to qa instead of quality
+- **install.ts** — `BEADS_PROMPTS` → `PROMPTS`, `SPECKIT_SKILLS` → `SKILLS`, reduced skills list to 3 essential skills
+- **init.ts** — complete rewrite with v2 config, dependency tracking, auto-agent-install, superpowers skills, beads initialization
+- **setup.ts** — extracted from init.ts as shared setup module (~200 lines); handles spec-kit, beads, and plugin installation
+- **list.ts / config.ts** — removed emojis from all output
+- **package.json** — removed `boxen` dependency, updated keywords, added `types` field, added `prepare` script
+
+### Removed
+- **Migration command** — `acli migrate` and `src/commands/migrate.ts` removed
+- **Old agent directories** — `requirements/`, `architecture/`, `quality/`, `testing/` deleted after merge
+- **Go dependency** — `checkGo()` function and Go installer removed from setup
+- **Dead code** — `getPrebuiltAgent`, `listPrebuiltAgentNames` from `agents/index.ts`; `validate()` and legacy config fields from `Agent.ts`
+- **ITERATIVE_DEVELOPMENT.md** — content merged into README.md
+
 ## [1.0.10] - 2026-03-14
 
 ### Changed

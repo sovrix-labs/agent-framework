@@ -16,11 +16,6 @@ export interface AgentMetadata {
 }
 
 export interface AgentConfig {
-  // Legacy fields (kept for backward compatibility but not used in frontmatter)
-  invoke?: string[];
-  skills?: string[];
-  applyTo?: string[];
-
   // Platform target: 'vscode' (default) or 'github-copilot'
   // Determines which attributes are valid in the frontmatter:
   //   github-copilot: description, github, infer, mcp-servers, name, target, tools
@@ -79,32 +74,10 @@ export abstract class Agent {
   abstract getInstructions(): string;
 
   /**
-   * Get the agent's system prompt
+   * Get the agent's system prompt (defaults to instructions)
    */
-  abstract getSystemPrompt(): string;
-
-  /**
-   * Validate agent configuration
-   */
-  validate(): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (!this.metadata.name) {
-      errors.push('Agent name is required');
-    }
-
-    if (!this.metadata.description) {
-      errors.push('Agent description is required');
-    }
-
-    if (!this.metadata.version) {
-      errors.push('Agent version is required');
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors
-    };
+  getSystemPrompt(): string {
+    return this.getInstructions();
   }
 
   /**
@@ -198,7 +171,7 @@ export abstract class Agent {
     if (typeof v === 'boolean') return String(v);
     const s = String(v);
     // Quote strings containing YAML-special characters
-    if (/[:#\[\]{}|>&*?!,'"`%@]/.test(s) || s.includes('\n')) {
+    if (/[:#\[\]{}|>&*?!,'"`%@-]/.test(s) || s.includes('\n') || s !== s.trim()) {
       return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
     }
     return s;

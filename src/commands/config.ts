@@ -55,7 +55,7 @@ async function setConfig(configPath: string, config: any, setValue: string): Pro
   current[keys[keys.length - 1]] = value;
 
   await fs.writeJson(configPath, config, { spaces: 2 });
-  console.log(chalk.green(`✓ Set ${key} = ${value}`));
+  console.log(chalk.green(`Set ${key} = ${value}`));
 }
 
 async function getConfig(config: any, getKey: string): Promise<void> {
@@ -75,7 +75,7 @@ async function getConfig(config: any, getKey: string): Promise<void> {
 }
 
 async function listConfig(config: any): Promise<void> {
-  console.log(chalk.bold.cyan('\n⚙️  Configuration\n'));
+  console.log(chalk.bold.cyan('\nConfiguration\n'));
   console.log(chalk.gray('─'.repeat(50)));
   
   printConfig(config, '');
@@ -125,5 +125,5 @@ async function interactiveConfig(configPath: string, config: any): Promise<void>
   config.defaultAgents = answers.defaultAgents;
 
   await fs.writeJson(configPath, config, { spaces: 2 });
-  console.log(chalk.green('\n✓ Configuration updated successfully!'));
+  console.log(chalk.green('\nConfiguration updated successfully.'));
 }

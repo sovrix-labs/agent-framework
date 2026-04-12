@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { getPrebuiltAgents } from '../agents';
 import { AgentManager } from '../core/AgentManager';
+import { installPrompts } from './install';
 
 export async function updateCommand(name?: string): Promise<void> {
   const projectRoot = process.cwd();
@@ -24,21 +25,25 @@ export async function updateCommand(name?: string): Promise<void> {
   } else {
     // Update all installed agents
     const installed = await agentManager.listInstalled();
-    
+
     if (installed.length === 0) {
       console.log(chalk.yellow('No agents installed.'));
-      return;
-    }
+    } else {
+      console.log(chalk.cyan(`Updating ${installed.length} agent(s)...\n`));
 
-    console.log(chalk.cyan(`Updating ${installed.length} agent(s)...\n`));
-
-    for (const agent of installed) {
-      if (prebuiltAgents[agent.name]) {
-        await updateAgent(agentManager, prebuiltAgents, agent.name);
-      } else {
-        console.log(chalk.gray(`Skipping custom agent: ${agent.name}`));
+      for (const agent of installed) {
+        if (prebuiltAgents[agent.name]) {
+          await updateAgent(agentManager, prebuiltAgents, agent.name);
+        } else {
+          console.log(chalk.gray(`Skipping custom agent: ${agent.name}`));
+        }
       }
     }
+
+    // Also update prompts and skills
+    const promptsSpinner = ora('Updating prompts...').start();
+    await installPrompts(projectRoot);
+    promptsSpinner.succeed('Prompts updated.');
   }
 }
 

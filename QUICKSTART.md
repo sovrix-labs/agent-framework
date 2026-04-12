@@ -2,317 +2,110 @@
 
 ## Installation
 
-Install the Agent Framework CLI globally:
-
 ```bash
-npm install -g @agent-framework/cli
-```
-
-Or use it directly with npx:
-
-```bash
-npx @agent-framework/cli init
+npm install -g agent-framework-cli
 ```
 
 ## Initialize Your Project
-
-Navigate to your project directory and initialize the framework:
 
 ```bash
 cd /path/to/your/project
 acli init
 ```
 
-This will:
-- Create `.github/agents/` directory
-- Create `.github/skills/` directory
-- Generate `.agent-framework.json` config
-- Set up VS Code extensions recommendations (.vscode/extensions.json)
+This sets up everything automatically:
+- `.github/agents/` -- 5 pre-built agent definitions
+- `.github/skills/` -- framework skills
+- `.github/prompts/` -- 16 slash command prompts
+- `.specify/` -- spec-kit working directory
+- `.beads/` -- beads task tracking
+- `.agent-framework.json` -- configuration file
 
-## Install Pre-built Agents
+`acli init` automatically installs spec-kit, beads, and required plugins (brownfield, fleet, superpowers-bridge) if they are not already present. No manual setup required.
 
-Install the agents you need:
+## Install Additional Agents
+
+All 5 agents are installed automatically during `acli init`. To reinstall a specific agent:
 
 ```bash
-# Install all recommended agents
-acli init --agents requirements architecture security development testing quality orchestrator
-
-# Or install individually
-acli install requirements
-acli install architecture
-acli install security
-acli install development
-acli install testing
-acli install quality
 acli install orchestrator
+acli install architect
 ```
 
-## Using Agents in VS Code
+## Use in VS Code
 
-Once installed, you can use agents in GitHub Copilot Chat:
+Open GitHub Copilot Chat and start with one of these workflows:
 
-### Requirement Gathering
+### Full Lifecycle (recommended)
+
 ```
-@requirements gather requirements for a user authentication system
-```
-
-The requirements agent will:
-- Ask clarifying questions
-- Create structured specification documents
-- Generate user stories and acceptance criteria
-- Link to GitHub issues
-
-### Architecture Design
-```
-@architecture design the system architecture for the authentication system
+/acli.run Build a REST API for user management
 ```
 
-The architecture agent will:
-- Design system components and data flow
-- Create Architecture Decision Records (ADRs)
-- Recommend design patterns
-- Plan scalability and technology choices
+This runs the complete 10-phase specification-driven workflow with human checkpoints.
 
-### Security Analysis
+### Onboard an Existing Project
+
 ```
-@security review security requirements for authentication
+/acli.onboard
 ```
 
-The security agent will:
-- Identify security vulnerabilities
-- Recommend security best practices
-- Check OWASP compliance
-- Perform threat modeling
+Auto-discovers your tech stack, architecture, and conventions, then generates tailored constitution and quality standards.
 
-### Development
-```
-@development implement the authentication system based on architecture design
-```
+### Individual Phases
 
-The development agent will:
-- Implement features from specifications
-- Follow architecture patterns
-- Apply security requirements
-- Add proper error handling
-
-### Testing
 ```
-@testing write comprehensive tests for the auth system
+/acli.constitution          -- set up project principles
+/acli.specify <feature>     -- write the feature spec
+/acli.clarify               -- resolve ambiguities
+/acli.plan                  -- create technical plan
+/acli.checklist             -- generate quality checklists
+/acli.tasks                 -- create task list
+/acli.analyze               -- validate consistency
+/acli.implement             -- implement with review loop
 ```
 
-The testing agent will:
-- Generate unit tests
-- Create integration tests
-- Ensure good coverage
-- Test edge cases
+### Utility Commands
 
-### Code Quality
 ```
-@quality review the authentication implementation
+/acli.debug <description>   -- structured debugging
+/acli.critique              -- code review
+/acli.respond               -- address review feedback
+/acli.finish                -- prepare branch for merge
 ```
 
-The quality agent will:
-- Perform code review
-- Check maintainability
-- Identify performance issues
-- Suggest refactoring
+## Agent Interaction
 
-### Project Orchestration
+Agents are available as `@agent` mentions in Copilot Chat:
+
 ```
-@orchestrator plan and coordinate the authentication feature development
-```
-
-The orchestrator agent will:
-- Break down complex tasks
-- Coordinate other agents
-- Track progress
-- Manage workflows
-
-## Creating Custom Agents
-
-Create a custom agent for your specific needs:
-
-```bash
-acli create agent
-```
-
-Follow the prompts to:
-1. Enter agent name (e.g., `deployment`)
-2. Provide description
-3. Set display name
-
-Edit the generated `.agent.md` file to customize behavior.
-
-## Creating Custom Skills
-
-Skills are reusable instruction sets:
-
-```bash
-acli create skill
-```
-
-Skills can be referenced by agents and provide specialized knowledge.
-
-## Example Workflow
-
-Here's a complete workflow using all agents:
-
-### 1. Gather Requirements
-```
-@requirements I need a REST API for managing blog posts
-```
-
-**Agent creates:** `specs/blog-api.md` with:
-- User stories
-- API endpoints
-- Data models
-- Acceptance criteria
-
-### 2. Implement Features
-```
-@development implement the blog post API from specs/blog-api.md
-```
-
-**Agent creates:**
-- `src/controllers/PostController.ts`
-- `src/services/PostService.ts`
-- `src/models/Post.ts`
-- `src/routes/posts.ts`
-
-### 3. Write Tests
-```
-@testing create tests for the blog post API
-```
-
-**Agent creates:**
-- `src/__tests__/PostService.test.ts`
-- `src/__tests__/posts.api.test.ts`
-
-### 4. Quality Check
-```
-@quality review the blog post implementation
-```
-
-**Agent provides:**
-- Code review feedback
-- Security analysis
-- Performance suggestions
-- Best practice recommendations
-
-### 5. Iterate
-Make improvements based on feedback:
-```
-@development fix the issues identified by @quality
-@testing add tests for the edge cases
-@quality verify the fixes
+@orchestrator start the full workflow for adding search functionality
+@architect what are the edge cases for file upload?
+@architect review this service layer design
+@security check this auth implementation for OWASP issues
+@development implement the next task from the task list
+@qa run regression tests for the payment module
+@qa review code quality standards compliance
 ```
 
 ## Configuration
 
-Customize the framework in `.agent-framework.json`:
-
-```json
-{
-  "version": "1.0.0",
-  "agentsDir": ".github/agents",
-  "skillsDir": ".github/skills",
-  "defaultAgents": ["requirements", "architecture", "security", "development", "testing", "quality", "orchestrator"],
-  "customSettings": {
-    "github": {
-      "token": "your-token",
-      "repo": "owner/repo"
-    }
-  }
-}
-```
-
-Or use the interactive config:
-
+View or edit settings:
 ```bash
 acli config
 ```
 
-## Commands Reference
+Configuration is stored in `.agent-framework.json` at the project root.
 
-| Command | Description |
-|---------|-------------|
-| `acli init` | Initialize framework |
-| `acli list agents` | List all agents |
-| `acli list skills` | List all skills |
-| `acli install <name>` | Install agent |
-| `acli create agent` | Create custom agent |
-| `acli create skill` | Create custom skill |
-| `acli remove <name>` | Remove agent |
-| `acli update [name]` | Update agent(s) |
-| `acli config` | Configure settings |
+## Updating
 
-## Tips & Best Practices
-
-### 1. Start with Requirements
-Always use `@requirements` first to document what you're building.
-
-### 2. Iterate Incrementally
-Build features one at a time, testing as you go.
-
-### 3. Use Quality Checks Early
-Run `@quality` reviews frequently, not just at the end.
-
-### 4. Customize Agents
-Edit `.agent.md` files to add project-specific knowledge.
-
-### 5. Combine Agents
-Agents can reference each other's work:
-```
-@development implement based on requirements.md
-@testing test the implementation from @development
-```
-
-### 6. Keep Documentation Updated
-Agents read documentation, so keep it current.
-
-### 7. Use Consistent Naming
-Follow consistent naming conventions in agent prompts.
-
-## Troubleshooting
-
-### Agent Not Found
 ```bash
-# List available agents
-acli list agents
-
-# Reinstall agent
-acli install <name> --force
+acli update                 # Update all agents, prompts, and skills
+acli update orchestrator    # Update a specific agent
 ```
-
-### Agent Not Working in Copilot
-1. Ensure VS Code has GitHub Copilot installed
-2. Verify `.agent.md` file exists
-3. Restart VS Code
-4. Check Copilot Chat settings
-
-### Permission Issues
-```bash
-# Use sudo for global install (if needed)
-sudo npm install -g @agent-framework/cli
-
-# Or use npx
-npx @agent-framework/cli <command>
-```
-
-## Getting Help
-
-- **Documentation**: Check `README.md` and agent `.md` files
-- **Examples**: See `examples/` directory
-- **Issues**: Open an issue on GitHub
-- **Community**: Join discussions
 
 ## Next Steps
 
-1. ✅ Initialize the framework
-2. ✅ Install agents
-3. ✅ Try basic commands
-4. 📚 Read agent documentation
-5. 🎨 Customize for your needs
-6. 🚀 Build amazing things!
-
-Happy coding! 🎉
+- [README.md](README.md) -- full documentation
+- [EXAMPLES.md](EXAMPLES.md) -- workflow examples
+- [CONTRIBUTING.md](CONTRIBUTING.md) -- development guide

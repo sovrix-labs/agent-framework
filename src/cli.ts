@@ -8,13 +8,14 @@ import { installCommand } from './commands/install';
 import { removeCommand } from './commands/remove';
 import { updateCommand } from './commands/update';
 import { configCommand } from './commands/config';
+import { setupCommand } from './commands/setup';
 
 const program = new Command();
 
 program
   .name('agent-cli')
   .description('CLI tool framework for building VS Code + Copilot agents and skills')
-  .version('1.0.0');
+  .version('2.0.0');
 
 // Initialize command
 program
@@ -22,6 +23,7 @@ program
   .description('Initialize agent framework in current project')
   .option('-d, --dir <directory>', 'Target directory', '.')
   .option('-a, --agents <agents...>', 'Pre-install specific agents')
+  .option('-f, --force', 'Reinitialize even if already configured')
   .action(initCommand);
 
 // List command
@@ -59,6 +61,14 @@ program
   .option('-g, --get <key>', 'Get a configuration value')
   .option('-l, --list', 'List all configuration')
   .action(configCommand);
+
+// Setup command
+program
+  .command('setup')
+  .description('Check and install all dependencies (spec-kit, beads, plugins)')
+  .option('-d, --dir <directory>', 'Target directory', '.')
+  .option('-c, --check', 'Check only, do not install')
+  .action(setupCommand);
 
 // Parse arguments
 program.parse(process.argv);

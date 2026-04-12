@@ -48,7 +48,7 @@ export async function removeCommand(name: string, options: RemoveOptions): Promi
 
   try {
     await agentManager.removeAgent(name);
-    spinner.succeed(`Agent "${name}" removed successfully!`);
+    spinner.succeed(`Agent "${name}" removed.`);
   } catch (error) {
     spinner.fail(`Failed to remove agent "${name}"`);
     console.error(chalk.red((error as Error).message));

@@ -90,7 +90,7 @@ This checklist ensures conformance to **WCAG 2.1 Level AA** standards. All items
 
 ### 1.4 Distinguishable (WCAG 1.4)
 
-- [ ] **Color Contrast** ✅
+- [ ] **Color Contrast**
   - [ ] Normal text: Minimum 4.5:1 contrast ratio
   - [ ] Large text (18pt+): Minimum 3:1 contrast ratio
   - [ ] UI components: Minimum 3:1 contrast ratio
@@ -144,7 +144,7 @@ This checklist ensures conformance to **WCAG 2.1 Level AA** standards. All items
 
 ### 2.1 Keyboard Accessible (WCAG 2.1)
 
-- [ ] **Keyboard Operation** ✅
+- [ ] **Keyboard Operation**
   - [ ] All functionality available via keyboard
   - [ ] No keyboard traps (can navigate in and out)
   - [ ] Tab order is logical and follows visual flow
@@ -234,7 +234,7 @@ This checklist ensures conformance to **WCAG 2.1 Level AA** standards. All items
   - [ ] Form labels describe purpose
   - [ ] Labels positioned correctly
 
-- [ ] **Focus Visible** ✅
+- [ ] **Focus Visible**
   - [ ] Keyboard focus indicator clearly visible
   - [ ] Focus indicator has sufficient contrast (3:1)
   - [ ] Focus indicator not removed with `outline: none`

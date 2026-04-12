@@ -9,42 +9,40 @@ interface InstallOptions {
   force?: boolean;
 }
 
-// Names of all BEADS+ prompt command files (without directory)
-const BEADS_PROMPTS = [
-  'acli.beads.constitution.prompt.md',
-  'acli.beads.specify.prompt.md',
-  'acli.beads.plan.prompt.md',
-  'acli.beads.tasks.prompt.md',
-  'acli.beads.implement.prompt.md',
-  'acli.beads.analyze.prompt.md',
+// Prompt command files (v2: spec-kit delegates + superpowers-bridge + fleet)
+const PROMPTS = [
+  'acli.constitution.prompt.md',
+  'acli.specify.prompt.md',
+  'acli.clarify.prompt.md',
+  'acli.plan.prompt.md',
+  'acli.checklist.prompt.md',
+  'acli.tasks.prompt.md',
+  'acli.analyze.prompt.md',
+  'acli.implement.prompt.md',
+  'acli.run.prompt.md',
   'acli.onboard.prompt.md',
+  'acli.debug.prompt.md',
+  'acli.critique.prompt.md',
+  'acli.respond.prompt.md',
+  'acli.finish.prompt.md',
   'acli.create.agent.prompt.md',
   'acli.create.skill.prompt.md',
 ];
 
-// Speckit skill files installed into .github/skills/
-const SPECKIT_SKILLS = [
-  'speckit-constitution.skill.md',
-  'speckit-specify.skill.md',
-  'speckit-plan.skill.md',
-  'speckit-tasks.skill.md',
-  'speckit-analyze.skill.md',
+// Skill files installed into .github/skills/ (v2: only framework-specific skills remain)
+const SKILLS = [
   'speckit-checklist.skill.md',
   'speckit-implement.skill.md',
   'speckit-onboard.skill.md',
 ];
 
-/**
- * Install speckit skill files into .github/skills/
- * These are referenced by beads prompts and agents via the tools array.
- */
-export async function installSpeckitSkills(projectRoot: string): Promise<void> {
+export async function installSkills(projectRoot: string): Promise<void> {
   const destDir = path.join(projectRoot, '.github', 'skills');
   await fs.ensureDir(destDir);
 
   const skillsSourceDir = path.resolve(__dirname, '..', '..', 'templates', 'skills');
 
-  for (const fileName of SPECKIT_SKILLS) {
+  for (const fileName of SKILLS) {
     const src = path.join(skillsSourceDir, fileName);
     const dest = path.join(destDir, fileName);
     if (await fs.pathExists(src)) {
@@ -53,18 +51,13 @@ export async function installSpeckitSkills(projectRoot: string): Promise<void> {
   }
 }
 
-/**
- * Install BEADS+ slash command prompt files into .github/prompts/
- * These become available as /acli.beads.* chat commands in GitHub Copilot Chat.
- */
-export async function installBeadsPrompts(projectRoot: string): Promise<void> {
+export async function installPrompts(projectRoot: string): Promise<void> {
   const destDir = path.join(projectRoot, '.github', 'prompts');
   await fs.ensureDir(destDir);
 
-  // Resolve the prompts source directory (relative to this compiled file: dist/commands/ → templates/prompts/)
   const promptsSourceDir = path.resolve(__dirname, '..', '..', 'templates', 'prompts');
 
-  for (const fileName of BEADS_PROMPTS) {
+  for (const fileName of PROMPTS) {
     const src = path.join(promptsSourceDir, fileName);
     const dest = path.join(destDir, fileName);
     if (await fs.pathExists(src)) {
@@ -72,8 +65,7 @@ export async function installBeadsPrompts(projectRoot: string): Promise<void> {
     }
   }
 
-  // Always install skills alongside prompts so tools references resolve
-  await installSpeckitSkills(projectRoot);
+  await installSkills(projectRoot);
 }
 
 export async function installCommand(name: string, options: InstallOptions): Promise<void> {
@@ -104,9 +96,9 @@ export async function installAgent(name: string, options: InstallOptions, projec
     process.exit(1);
   }
 
-  // If installing orchestrator, install all agents + BEADS+ prompts
+  // If installing orchestrator, install all agents + prompts
   if (name === 'orchestrator') {
-    const spinner = ora('Installing orchestrator, all agents and BEADS+ commands...').start();
+    const spinner = ora('Installing orchestrator, all agents and slash commands...').start();
     const allAgents = Object.keys(prebuiltAgents);
     const installed: string[] = [];
     
@@ -117,23 +109,23 @@ export async function installAgent(name: string, options: InstallOptions, projec
         installed.push(agentName);
       }
 
-      // Install BEADS+ prompt files
-      await installBeadsPrompts(projectRoot);
+      // Install prompt files
+      await installPrompts(projectRoot);
       
-      spinner.succeed('All agents and BEADS+ commands installed successfully!');
+      spinner.succeed('All agents and slash commands installed successfully.');
       console.log(chalk.cyan('\nInstalled agents:'));
       for (const agentName of installed) {
-        console.log(chalk.gray(`  ✓ ${agentName}`));
+        console.log(chalk.gray(`  - ${agentName}`));
       }
-      console.log(chalk.cyan('\nBEADS+ slash commands installed:'));
-      for (const p of BEADS_PROMPTS) {
-        console.log(chalk.gray(`  ✓ /${p.replace('.prompt.md', '')}`));
+      console.log(chalk.cyan('\nSlash commands installed:'));
+      for (const p of PROMPTS) {
+        console.log(chalk.gray(`  - /${p.replace('.prompt.md', '')}`));
       }
-      console.log(chalk.cyan('\nSpeckit skills installed:'));
-      for (const s of SPECKIT_SKILLS) {
-        console.log(chalk.gray(`  ✓ ${s.replace('.skill.md', '')}`));
+      console.log(chalk.cyan('\nSkills installed:'));
+      for (const s of SKILLS) {
+        console.log(chalk.gray(`  - ${s.replace('.skill.md', '')}`));
       }
-      console.log(chalk.cyan('\nIn Copilot Chat, use /acli.beads.constitution to start your workflow.'));
+      console.log(chalk.cyan('\nIn Copilot Chat, use /acli.constitution to start your workflow.'));
       console.log(chalk.gray(`Agents: ${config.agentsDir} | Prompts: .github/prompts/ | Skills: .github/skills/`));
     } catch (error) {
       spinner.fail('Failed to install agents');
@@ -147,7 +139,7 @@ export async function installAgent(name: string, options: InstallOptions, projec
       const agent = prebuiltAgents[name];
       await agentManager.installAgent(agent, options.force);
       
-      spinner.succeed(`Agent "${name}" installed successfully!`);
+      spinner.succeed(`Agent "${name}" installed.`);
       console.log(chalk.gray(`Location: ${path.join(config.agentsDir, name)}`));
       console.log(chalk.cyan(`\nUse @${name} in VS Code Copilot Chat to invoke this agent.`));
     } catch (error) {

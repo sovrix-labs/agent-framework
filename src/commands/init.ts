@@ -2,13 +2,15 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import chalk from 'chalk';
 import ora from 'ora';
-import boxen from 'boxen';
 import { AgentManager } from '../core/AgentManager';
-import { installBeadsPrompts } from './install';
+import { getPrebuiltAgents } from '../agents';
+import { installPrompts } from './install';
+import { initProject } from './setup';
 
 interface InitOptions {
   dir: string;
   agents?: string[];
+  force?: boolean;
 }
 
 export async function initCommand(options: InitOptions): Promise<void> {
@@ -17,15 +19,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
   try {
     const projectRoot = path.resolve(options.dir);
 
-    // Create .github directory
+    // Create .github directory structure
     const githubDir = path.join(projectRoot, '.github');
     await fs.ensureDir(githubDir);
 
-    // Create agents directory in .github/agents
     const agentsDir = path.join(githubDir, 'agents');
     await fs.ensureDir(agentsDir);
 
-    // Create skills directory in .github/skills
     const skillsDir = path.join(githubDir, 'skills');
     await fs.ensureDir(skillsDir);
 
@@ -35,16 +35,30 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
     // Create config file
     const configPath = path.join(projectRoot, '.agent-framework.json');
-    if (!(await fs.pathExists(configPath))) {
-      const config = {
-        version: '1.0.0',
+    if (await fs.pathExists(configPath)) {
+      if (!options.force) {
+        spinner.fail('Agent framework already initialized. Use --force to reinitialize.');
+        process.exit(1);
+      }
+    }
+    const config = {
+        version: '2.0.0',
         agentsDir: '.github/agents',
         skillsDir: '.github/skills',
+        promptsDir: '.github/prompts',
+        dependencies: {
+          'spec-kit': { enabled: true, version: 'bundled' },
+          superpowers: { enabled: true, version: 'bundled' },
+          beads: { enabled: true, requireCli: false }
+        },
+        enterprise: {
+          tone: 'formal',
+          emojis: false
+        },
         defaultAgents: options.agents || [],
         customSettings: {}
       };
-      await fs.writeJson(configPath, config, { spaces: 2 });
-    }
+    await fs.writeJson(configPath, config, { spaces: 2 });
 
     // Create VS Code extensions.json
     const extensionsPath = path.join(vscodeDir, 'extensions.json');
@@ -60,59 +74,121 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
     // Create README in agents directory
     const agentsReadme = path.join(agentsDir, 'README.md');
-    await fs.writeFile(agentsReadme, `# GitHub Copilot Agents\n\nThis directory contains AI agents for GitHub Copilot.\n\n## Installation\n\nInstall pre-built agents:\n- \`acli install requirements\` - Requirements gathering with BEADS+\n- \`acli install architecture\` - System design and patterns\n- \`acli install security\` - Security analysis\n- \`acli install development\` - Code implementation\n- \`acli install testing\` - Test generation\n- \`acli install quality\` - Code quality checks\n- \`acli install orchestrator\` - Multi-agent coordination\n\n## Create Custom Agents\n\n\`\`\`bash\nacli create agent\n\`\`\`\n\n## Usage\n\nIn VS Code Copilot Chat, use \`@agentname\` to invoke agents.\n\nExample:\n\`\`\`\n@requirements gather requirements for user authentication\n\`\`\`\n`, 'utf-8');
+    await fs.writeFile(agentsReadme, `# GitHub Copilot Agents
+
+This directory contains AI agents for GitHub Copilot.
+
+## Installation
+
+Install all agents:
+\`\`\`bash
+acli install orchestrator
+\`\`\`
+
+Or install individually:
+- \`acli install architect\` - Requirements, specifications, and architecture
+- \`acli install security\` - Security analysis
+- \`acli install development\` - Code implementation
+- \`acli install qa\` - Testing and code quality
+- \`acli install orchestrator\` - Multi-agent coordination
+
+## Usage
+
+In VS Code Copilot Chat, use \`@agentname\` to invoke agents.
+
+Example:
+\`\`\`
+@architect gather requirements for user authentication
+\`\`\`
+`, 'utf-8');
 
     // Create README in skills directory
     const skillsReadme = path.join(skillsDir, 'README.md');
-    await fs.writeFile(skillsReadme, `# GitHub Copilot Skills\n\nThis directory contains reusable skills for GitHub Copilot agents.\n\n## Create Custom Skills\n\n\`\`\`bash\nacli create skill\n\`\`\`\n`, 'utf-8');
+    await fs.writeFile(skillsReadme, `# GitHub Copilot Skills
 
-    // Install BEADS+ slash command prompts into .github/prompts/
-    await installBeadsPrompts(projectRoot);
+This directory contains reusable skills for GitHub Copilot agents.
 
-    // Scaffold .specify directory structure
-    await fs.ensureDir(path.join(projectRoot, '.specify', 'memory'));
-    await fs.ensureDir(path.join(projectRoot, '.specify', 'specs'));
+## Create Custom Skills
 
-    spinner.succeed('Agent framework initialized successfully!');
+\`\`\`bash
+acli create skill
+\`\`\`
+`, 'utf-8');
 
-    // Install default agents if specified
+    spinner.succeed('Directory structure created.');
+
+    // Install slash command prompts
+    const promptsSpinner = ora('Installing slash command prompts...').start();
+    await installPrompts(projectRoot);
+    promptsSpinner.succeed('Slash command prompts installed.');
+
+    // Install all built-in agents
+    const agentsSpinner = ora('Installing built-in agents...').start();
+    const agentManager = new AgentManager(projectRoot, config.agentsDir);
+    const prebuiltAgents = getPrebuiltAgents();
+    const installedAgents: string[] = [];
+
+    for (const [agentName, agent] of Object.entries(prebuiltAgents)) {
+      try {
+        await agentManager.installAgent(agent, true);
+        installedAgents.push(agentName);
+      } catch (error) {
+        console.log(chalk.yellow(`  Warning: failed to install ${agentName}: ${(error as Error).message}`));
+      }
+    }
+    agentsSpinner.succeed(`Installed ${installedAgents.length} built-in agents.`);
+
+    // Set up spec-kit and beads for the project (no dependency installation)
+    const setupResult = await initProject(projectRoot);
+
+    // Update config with actual dependency status
+    config.dependencies['spec-kit'].version = setupResult.specKit ? 'cli' : 'unavailable';
+    config.dependencies.beads.enabled = setupResult.beads;
+    config.dependencies.beads.requireCli = setupResult.beads;
+    await fs.writeJson(configPath, config, { spaces: 2 });
+
+    // Install additional default agents if specified
     if (options.agents && options.agents.length > 0) {
-      console.log(chalk.cyan('\nInstalling default agents...'));
-      
+      console.log(chalk.cyan('\nInstalling additional specified agents...'));
       for (const agentName of options.agents) {
-        const agentSpinner = ora(`Installing ${agentName}...`).start();
-        try {
-          // Dynamic import and install (will be implemented in install command)
-          const { installAgent } = await import('./install');
-          await installAgent(agentName, { force: false }, projectRoot);
-          agentSpinner.succeed(`Installed ${agentName}`);
-        } catch (error) {
-          agentSpinner.fail(`Failed to install ${agentName}`);
-          console.error(chalk.red((error as Error).message));
+        if (!installedAgents.includes(agentName)) {
+          const agentSpinner = ora(`Installing ${agentName}...`).start();
+          try {
+            const { installAgent } = await import('./install');
+            await installAgent(agentName, { force: false }, projectRoot);
+            agentSpinner.succeed(`Installed ${agentName}`);
+          } catch (error) {
+            agentSpinner.fail(`Failed to install ${agentName}`);
+            console.error(chalk.red((error as Error).message));
+          }
         }
       }
     }
 
     // Success message
-    const message = boxen(
-      chalk.green.bold('✓ Agent Framework Initialized!\n\n') +
-      chalk.white('Next steps:\n') +
-      chalk.cyan('  1. acli install orchestrator') + chalk.gray(' - Install all agents\n') +
-      chalk.cyan('  2. /acli.beads.constitution') + chalk.gray(' - Create your project constitution (in Copilot Chat)\n') +
-      chalk.cyan('  3. /acli.beads.specify') + chalk.gray(' - Define what you want to build\n') +
-      chalk.cyan('  4. /acli.beads.implement') + chalk.gray(' - Start iterative development\n\n') +
-      chalk.white('BEADS+ commands installed in: ') + chalk.blue('.github/prompts/\n') +
-      chalk.white('Speckit skills installed in:  ') + chalk.blue('.github/skills/\n') +
-      chalk.white('Documentation: ') + chalk.blue('https://github.com/ipranjal/agent-framework'),
-      {
-        padding: 1,
-        margin: 1,
-        borderStyle: 'round',
-        borderColor: 'green'
-      }
-    );
+    console.log('');
+    console.log(chalk.green.bold('Agent Framework v2 initialized successfully.'));
+    console.log('');
 
-    console.log(message);
+    if (!setupResult.specKit || !setupResult.beads) {
+      console.log(chalk.yellow('Some dependencies are missing. Run:'));
+      console.log(chalk.cyan('  acli setup') + chalk.gray('             - Install spec-kit, beads, and plugins'));
+      console.log('');
+    }
+
+    console.log(chalk.white('Next steps:'));
+    console.log(chalk.cyan('  /acli.onboard') + chalk.gray('      - Onboard an existing project (brownfield)'));
+    console.log(chalk.cyan('  /acli.constitution') + chalk.gray(' - Create your project constitution'));
+    console.log(chalk.cyan('  /acli.run') + chalk.gray('          - Run the full fleet orchestrator'));
+    console.log(chalk.cyan('  /acli.specify') + chalk.gray('      - Define what you want to build'));
+    console.log('');
+    console.log(chalk.white('Installed to:'));
+    console.log(chalk.gray('  Agents:  .github/agents/'));
+    console.log(chalk.gray('  Prompts: .github/prompts/'));
+    console.log(chalk.gray('  Skills:  .github/skills/'));
+    console.log(chalk.gray('  Specs:   .specify/'));
+    console.log('');
+    console.log(chalk.white('Documentation: ') + chalk.gray('https://github.com/ipranjal/agent-framework'));
 
   } catch (error) {
     spinner.fail('Failed to initialize agent framework');

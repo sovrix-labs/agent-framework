@@ -12,8 +12,8 @@ description: Generate a custom requirements-quality checklist for a feature — 
 ## Core Concept: "Unit Tests for English"
 Checklists validate the **quality of written requirements**, not implementation behavior.
 
-- ❌ WRONG: "Verify button clicks correctly" (tests the system)
-- ✅ CORRECT: "Are interaction state requirements (hover, focus, active) consistently defined?" (tests the spec)
+- WRONG: "Verify button clicks correctly" (tests the system)
+- CORRECT: "Are interaction state requirements (hover, focus, active) consistently defined?" (tests the spec)
 
 ## Inputs
 - User's request describing checklist focus and scope (e.g., security, UX, API, performance).
@@ -53,12 +53,12 @@ Checklists validate the **quality of written requirements**, not implementation 
 8. **Report**: Full path to checklist, item count, focus areas, depth level.
 
 ## Prohibited Patterns
-- ❌ Items starting with "Verify", "Test", "Confirm" + implementation behavior
-- ❌ References to code execution or user actions clicking/navigating/rendering
-- ❌ Test cases, test plans, or QA procedures
+- Items starting with "Verify", "Test", "Confirm" + implementation behavior
+- References to code execution or user actions clicking/navigating/rendering
+- Test cases, test plans, or QA procedures
 
 ## Outputs
 - `specs/<feature>/checklists/<domain>.md`
 
 ## Next Steps
-Incomplete checklist items require spec/plan updates before running `/acli.beads.implement`.
+Incomplete checklist items require spec/plan updates before running `/acli.implement`.

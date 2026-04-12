@@ -2,12 +2,12 @@
 
 ## Purpose
 
-This skill provides guidance for the `/acli.onboard` command — reverse-engineering an existing project into the three foundational BEADS+ documents that govern all future development.
+This skill provides guidance for the `/acli.onboard` command — reverse-engineering an existing project into the three foundational specification documents that govern all future development.
 
 ## When to Use
 
 Use this skill when:
-- Bringing an existing project under the BEADS+ workflow for the first time
+- Bringing an existing project under the specification-driven workflow for the first time
 - A project has no `.specify/memory/` documents yet
 - The team wants to formalise undocumented conventions
 - After a major tech stack migration that makes the existing documents stale
@@ -18,7 +18,7 @@ Use this skill when:
 |------|---------|
 | `.specify/memory/constitution.md` | Project principles, tech constraints, workflow rules |
 | `.specify/memory/reference-architecture.md` | Canonical architecture all agents must follow |
-| `.specify/memory/quality-standards.md` | Language/framework-specific quality rules for @quality agent |
+| `.specify/memory/quality-standards.md` | Language/framework-specific quality rules for @qa agent |
 
 ## Exploration Strategy
 
@@ -55,7 +55,7 @@ Use this skill when:
 - **Only extract** rules that are actually configured in the project — do not invent ideal standards
 - **Mark gaps**: if a standard is absent (no coverage threshold, no linter), say "not yet configured" and recommend it
 - **Be specific**: include actual commands from `scripts`, actual threshold values from config files
-- **@quality integration**: the quality-standards.md must end with explicit `@quality Agent Instructions` so the quality agent knows to load it
+- **@qa integration**: the quality-standards.md must end with explicit `@qa Agent Instructions` so the QA agent knows to load it
 
 ## Integration With Agent Workflow
 
@@ -64,7 +64,7 @@ After onboarding, every agent in the framework automatically:
 2. Loads `.specify/memory/reference-architecture.md` before making any design or implementation decision
 3. Flags any proposed change that conflicts with either document before proceeding
 
-The `@quality` agent additionally:
+The `@qa` agent additionally:
 1. Loads `.specify/memory/quality-standards.md` at the start of every review
 2. Enforces every rule listed — no exceptions without explicit team override documented in the file
 
