@@ -92,18 +92,6 @@ Human gates at phases 5, 6, and 10 keep you in control of what gets built.
 
 Phase 8 is where the real work happens. For each task, three agents cycle until quality and tests pass:
 
-```
-    @development                @qa                     @qa
-    /acli.implement    -->    /acli.critique    -->    run tests
-         ^                                                |
-         |                                           pass? |
-         +--------- /acli.respond (if no) --------<--+    |
-                     (max 5 iterations)                   v
-                                                      TASK DONE
-```
-
-**How the loop works:**
-
 1. **Task selection** -- the orchestrator picks the next task from `tasks.md` by priority (P0 first) and dependency order
 2. **Implementation** -- `@development` writes code and tests following the plan, then updates the handover document
 3. **Code review** -- `@qa` validates against spec acceptance criteria, checks architecture conformance, flags issues with severity ratings
