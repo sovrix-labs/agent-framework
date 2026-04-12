@@ -123,42 +123,6 @@ When you run `/acli.run`, the orchestrator takes your feature through 10 phases:
 
 ---
 
-## 🔁 Iterative Development Loop
-
-Phase 8 (Implement) is where the real work happens. Instead of writing everything in one shot and hoping for the best, agents work in tight feedback cycles:
-
-```
-    ┌───────────────────────────────────────────┐
-    │                                           │
-    ▼                                           │
-  ⚙️ Development         ✅ All good?           │
-  writes code & tests ──▶ critique passes? ──▶ DONE
-    │                     tests green?          │
-    │                                           │
-    │                     ❌ Issues found?       │
-    │                     ◀─── critique fails    │
-    │                          or tests red      │
-    │                                           │
-    └───── feedback via /acli.respond ──────────┘
-                (max 5 iterations)
-```
-
-**How it works, step by step:**
-
-1. **Pick a task** — the orchestrator selects the next task from `tasks.md` by priority (P0 first) and dependency order
-2. **Implement** — `@development` writes code and tests following the plan, then creates a handover document
-3. **Review** — `@qa` checks the code against spec acceptance criteria, validates architecture conformance, and flags issues with severity ratings
-4. **Test** — `@qa` runs the test suite and reports pass/fail results
-5. **Decide** — if the review passes and tests are green, the task is done. Otherwise, feedback goes back to `@development` via `/acli.respond`
-
-If a task fails 5 iterations, the orchestrator **escalates to you** instead of looping forever.
-
-Up to **3 independent tasks** (different files, no shared dependencies) can run in parallel.
-
-After all tasks pass, the orchestrator runs the full test suite (Phase 9) and story-level integration tests (Phase 10) to verify end-to-end user flows.
-
----
-
 ## 🏗️ Onboard an Existing Project
 
 Already have a codebase? Skip the setup — just run:
